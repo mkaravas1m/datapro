@@ -42,6 +42,12 @@ export function Header() {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
+           <Button asChild variant="ghost" size="icon">
+              <Link href="/cart">
+                <ShoppingCart className="h-5 w-5" />
+                <span className="sr-only">Cart</span>
+              </Link>
+            </Button>
           {isLoggedIn ? (
             <>
               {userRole === "Admin" ? (
