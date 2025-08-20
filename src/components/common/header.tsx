@@ -1,10 +1,17 @@
+
 "use client";
 
 import Link from "next/link";
-import { Database, LayoutGrid, LogIn, UserPlus, ShoppingCart } from "lucide-react";
+import { Database, LogIn, UserPlus, ShoppingCart, ChevronDown, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 export function Header() {
   const pathname = usePathname();
@@ -12,9 +19,16 @@ export function Header() {
   const userRole = "Client"; // This would come from user data
 
   const navLinks = [
-    { href: "/", label: "CSV Store" },
-    { href: "/exclusive-leads", label: "Exclusive Leads" },
-    { href: "/dashboard", label: "Dashboard", loggedIn: true },
+    { href: "/", label: "Home" },
+    { href: "/company", label: "Company" },
+    { href: "/shop", label: "Shop" },
+  ];
+
+  const examplesOfOurDataLinks = [
+    { href: "/examples/business-data", label: "Business Data" },
+    { href: "/examples/doctor-data", label: "Doctor Data" },
+    { href: "/examples/high-income-individuals", label: "High Income Individuals" },
+    { href: "/examples/medium-income-individuals", label: "Medium Income Individuals" },
   ];
 
   return (
@@ -27,18 +41,33 @@ export function Header() {
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
             {navLinks.map((link) => (
-              (!link.loggedIn || isLoggedIn) && (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn("transition-colors hover:text-foreground/80", 
-                    pathname === link.href ? "text-foreground" : "text-foreground/60"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              )
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn("transition-colors hover:text-foreground/80", 
+                  pathname === link.href ? "text-foreground" : "text-foreground/60"
+                )}
+              >
+                {link.label}
+              </Link>
             ))}
+             <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className={cn(
+                  "flex items-center gap-1 text-sm font-medium transition-colors hover:text-foreground/80 focus-visible:ring-0", 
+                  examplesOfOurDataLinks.some(l => pathname.startsWith(l.href)) ? "text-foreground" : "text-foreground/60"
+                )}>
+                  Examples Of Our Data <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {examplesOfOurDataLinks.map(link => (
+                   <DropdownMenuItem key={link.href} asChild>
+                    <Link href={link.href}>{link.label}</Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
