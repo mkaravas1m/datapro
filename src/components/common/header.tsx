@@ -3,10 +3,19 @@
 import Link from "next/link";
 import { Database, LayoutGrid, LogIn, UserPlus, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePathname } from 'next/navigation'
+import { cn } from "@/lib/utils";
 
 export function Header() {
+  const pathname = usePathname();
   const isLoggedIn = false; // This would be replaced with actual auth state
   const userRole = "Client"; // This would come from user data
+
+  const navLinks = [
+    { href: "/", label: "CSV Store" },
+    { href: "/exclusive-leads", label: "Exclusive Leads" },
+    { href: "/dashboard", label: "Dashboard", loggedIn: true },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -17,18 +26,19 @@ export function Header() {
             <span className="font-bold">DataSalesPro</span>
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
-            <Link
-              href="/"
-              className="transition-colors hover:text-foreground/80 text-foreground"
-            >
-              CSV Store
-            </Link>
-            <Link
-              href="/exclusive-leads"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Exclusive Leads
-            </Link>
+            {navLinks.map((link) => (
+              (!link.loggedIn || isLoggedIn) && (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn("transition-colors hover:text-foreground/80", 
+                    pathname === link.href ? "text-foreground" : "text-foreground/60"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              )
+            ))}
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
@@ -41,9 +51,9 @@ export function Header() {
                   </Link>
                 </Button>
               ) : (
-                <Button asChild variant="outline">
+                 <Button asChild variant="outline">
                   <Link href="/dashboard">
-                    <LayoutGrid className="mr-2 h-4 w-4" /> Dashboard
+                    <LayoutGrid className="mr-2 h-4 w-4" /> My Account
                   </Link>
                 </Button>
               )}
