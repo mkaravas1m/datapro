@@ -37,8 +37,8 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/admin", icon: Home, label: "Dashboard" },
   { href: "/admin/upload", icon: Upload, label: "Upload File" },
-  { href: "/admin/orders", icon: ShoppingCart, label: "Orders", badge: 6 },
   { href: "/admin/files", icon: Package, label: "Files" },
+  { href: "/admin/orders", icon: ShoppingCart, label: "Orders", badge: 6 },
   { href: "/admin/users", icon: Users, label: "Customers" },
   { href: "/admin/analytics", icon: LineChart, label: "Analytics" },
 ];
