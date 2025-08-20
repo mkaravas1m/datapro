@@ -70,30 +70,9 @@ export function Header() {
             </DropdownMenu>
           </nav>
         </div>
+
         <div className="ml-auto flex items-center space-x-2">
-          {isLoggedIn ? (
-            <>
-              <Button asChild variant="ghost" size="icon">
-                <Link href="/cart">
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="sr-only">Cart</span>
-                </Link>
-              </Button>
-              {userRole === "Admin" ? (
-                <Button asChild variant="outline">
-                  <Link href="/admin">
-                    <LayoutGrid className="mr-2 h-4 w-4" /> Admin Panel
-                  </Link>
-                </Button>
-              ) : (
-                  <Button asChild variant="outline">
-                  <Link href="/dashboard">
-                    <LayoutGrid className="mr-2 h-4 w-4" /> My Account
-                  </Link>
-                </Button>
-              )}
-            </>
-          ) : (
+          {!isLoggedIn && (
             <>
               <Button asChild variant="ghost">
                 <Link href="/login">
@@ -107,14 +86,33 @@ export function Header() {
                   Sign Up
                 </Link>
               </Button>
-              <Button asChild variant="ghost" size="icon">
-                <Link href="/cart">
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="sr-only">Cart</span>
-                </Link>
-              </Button>
             </>
           )}
+
+          {isLoggedIn && (
+            <>
+              {userRole === "Admin" ? (
+                <Button asChild variant="outline">
+                  <Link href="/admin">
+                    <LayoutGrid className="mr-2 h-4 w-4" /> Admin Panel
+                  </Link>
+                </Button>
+              ) : (
+                <Button asChild variant="outline">
+                  <Link href="/dashboard">
+                    <LayoutGrid className="mr-2 h-4 w-4" /> My Account
+                  </Link>
+                </Button>
+              )}
+            </>
+          )}
+
+          <Button asChild variant="ghost" size="icon">
+            <Link href="/cart">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="sr-only">Cart</span>
+            </Link>
+          </Button>
         </div>
       </div>
     </header>
