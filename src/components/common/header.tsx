@@ -70,7 +70,7 @@ export function Header() {
             </DropdownMenu>
           </nav>
         </div>
-        <div className="ml-auto flex items-center justify-end space-x-2">
+        <div className="ml-auto flex items-center space-x-2">
           {isLoggedIn ? (
             <>
               <Button asChild variant="ghost" size="icon">
@@ -101,7 +101,7 @@ export function Header() {
                   Login
                 </Link>
               </Button>
-              <Button asChild className="bg-primary hover:bg-primary/90">
+              <Button asChild>
                 <Link href="/signup">
                   <UserPlus className="mr-2 h-4 w-4" />
                   Sign Up
