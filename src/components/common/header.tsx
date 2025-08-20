@@ -34,51 +34,51 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
-        <div className="mr-4 flex">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
+        <div className="mr-auto flex">
+          <Link href="/" className="flex items-center space-x-2">
             <Database className="h-6 w-6 text-primary" />
             <span className="font-bold">DataSalesPro</span>
           </Link>
-          <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn("transition-colors hover:text-foreground/80", 
-                  pathname === link.href ? "text-foreground" : "text-foreground/60"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className={cn(
-                  "flex items-center gap-1 text-sm font-medium transition-colors hover:text-foreground/80 focus-visible:ring-0", 
-                  examplesOfOurDataLinks.some(l => pathname.startsWith(l.href)) ? "text-foreground" : "text-foreground/60"
-                )}>
-                  Examples Of Our Data <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {examplesOfOurDataLinks.map(link => (
-                   <DropdownMenuItem key={link.href} asChild>
-                    <Link href={link.href}>{link.label}</Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </nav>
         </div>
-        <div className="flex flex-1 items-center justify-end space-x-2">
+        <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn("transition-colors hover:text-foreground/80", 
+                pathname === link.href ? "text-foreground" : "text-foreground/60"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+            <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className={cn(
+                "flex items-center gap-1 text-sm font-medium transition-colors hover:text-foreground/80 focus-visible:ring-0", 
+                examplesOfOurDataLinks.some(l => pathname.startsWith(l.href)) ? "text-foreground" : "text-foreground/60"
+              )}>
+                Examples Of Our Data <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {examplesOfOurDataLinks.map(link => (
+                  <DropdownMenuItem key={link.href} asChild>
+                  <Link href={link.href}>{link.label}</Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </nav>
+        <div className="flex items-center justify-end space-x-2 ml-6">
           {isLoggedIn ? (
             <>
-               <Button asChild variant="ghost" size="icon">
-                  <Link href="/cart">
-                    <ShoppingCart className="h-5 w-5" />
-                    <span className="sr-only">Cart</span>
-                  </Link>
-                </Button>
+              <Button asChild variant="ghost" size="icon">
+                <Link href="/cart">
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="sr-only">Cart</span>
+                </Link>
+              </Button>
               {userRole === "Admin" ? (
                 <Button asChild variant="outline">
                   <Link href="/admin">
@@ -86,7 +86,7 @@ export function Header() {
                   </Link>
                 </Button>
               ) : (
-                 <Button asChild variant="outline">
+                  <Button asChild variant="outline">
                   <Link href="/dashboard">
                     <LayoutGrid className="mr-2 h-4 w-4" /> My Account
                   </Link>
