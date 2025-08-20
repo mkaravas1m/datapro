@@ -1,8 +1,9 @@
 import { FileCard } from "@/components/store/file-card";
 import type { CsvFile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Search, Briefcase, HandCoins, Download } from "lucide-react";
+import { ArrowRight, Search, HandCoins, Download, Briefcase, BarChart, Mail, Building } from "lucide-react";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
 
 const mockFiles: CsvFile[] = [
   {
@@ -83,6 +84,13 @@ const HowItWorksStep = ({ icon, title, description }: { icon: React.ElementType,
 
 export default function Home() {
   const availableFiles = mockFiles.filter(f => f.status === 'available').slice(0, 3);
+  const categories = [
+    { name: "Business", icon: Briefcase },
+    { name: "eCommerce", icon: BarChart },
+    { name: "Email Lists", icon: Mail },
+    { name: "Health", icon: Download },
+    { name: "Property Records", icon: Building },
+  ];
 
   return (
     <>
@@ -94,11 +102,25 @@ export default function Home() {
           <p className="max-w-2xl mx-auto mt-4 text-lg text-muted-foreground md:text-xl">
             The easiest way to buy and sell data.
           </p>
-          <Button size="lg" className="mt-8" asChild>
-            <Link href="#">
-              Browse data <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
+          <div className="max-w-xl mx-auto mt-8">
+            <div className="flex w-full items-center space-x-2">
+              <Input type="text" placeholder="Search for datasets..." className="flex-1 text-base" />
+              <Button type="submit" size="lg">
+                <Search className="h-5 w-5" />
+                <span className="ml-2">Search</span>
+              </Button>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
+              {categories.map((category) => (
+                <Button key={category.name} variant="ghost" className="text-muted-foreground" asChild>
+                  <Link href="#">
+                    <category.icon className="mr-2 h-4 w-4" />
+                    {category.name}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
