@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
+  STAFF
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          UserRole  @default(CLIENT)
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  balance       Balance?
+  transactions  Transaction[]
+  purchases     Purchase[]
+}
+
+model File {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  category    String
+  rowCount    Int
+  checksum    String   @unique
+  price       Decimal  @db.Decimal(10, 2)
+  status      String // "available", "sold", "archived"
+  s3Key       String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Order       Order?
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  userId          String
+  fileId          String   @unique
+  status          String // "paid", "refunded", "failed"
+  stripeSessionId String
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id])
+  file            File     @relation(fields: [fileId], references: [id])
+}
+
+model Balance {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  currentBalance Decimal  @default(0) @db.Decimal(10, 2)
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+enum TransactionType {
+  DEPOSIT
+  DEBIT
+  REFUND
+  ADJUSTMENT
+}
+
+model Transaction {
+  id        String          @id @default(cuid())
+  userId    String
+  amount    Decimal         @db.Decimal(10, 2)
+  type      TransactionType
+  stripeRef String?
+  createdAt DateTime        @default(now())
+  user      User            @relation(fields: [userId], references: [id])
+}
+
+model ExclusiveBatch {
+  id             String          @id @default(cuid())
+  name           String
+  pricePerLead   Decimal         @db.Decimal(10, 2)
+  status         String // "available", "sold_out", "archived"
+  createdAt      DateTime        @default(now())
+  exclusiveLeads ExclusiveLead[]
+}
+
+model ExclusiveLead {
+  id        String          @id @default(cuid())
+  batchId   String
+  data      Json // The actual lead data
+  isSold    Boolean         @default(false)
+  batch     ExclusiveBatch  @relation(fields: [batchId], references: [id])
+  purchases Purchase[]
+  createdAt DateTime        @default(now())
+}
+
+model Purchase {
+  id      String   @id @default(cuid())
+  userId  String
+  leadId  String
+  price   Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  user    User     @relation(fields: [userId], references: [id])
+  lead    ExclusiveLead @relation(fields: [leadId], references: [id])
+
+  @@unique([userId, leadId]) // A user can only buy a specific lead once
+}
