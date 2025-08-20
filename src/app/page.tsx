@@ -1,7 +1,8 @@
 import { FileCard } from "@/components/store/file-card";
 import type { CsvFile } from "@/lib/types";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Search, Briefcase, HandCoins, Download } from "lucide-react";
+import Link from "next/link";
 
 const mockFiles: CsvFile[] = [
   {
@@ -41,7 +42,7 @@ const mockFiles: CsvFile[] = [
     category: "Real Estate",
     rowCount: 85000,
     price: 600.00,
-    status: "sold",
+    status: "available",
     sample: [],
   },
     {
@@ -66,29 +67,91 @@ const mockFiles: CsvFile[] = [
   },
 ];
 
+
+const HowItWorksStep = ({ icon, title, description }: { icon: React.ElementType, title: string, description: string }) => {
+  const Icon = icon;
+  return (
+    <div className="flex flex-col items-center text-center">
+      <div className="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-primary/10 text-primary">
+        <Icon className="w-8 h-8" />
+      </div>
+      <h3 className="mb-2 text-xl font-bold">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
+    </div>
+  );
+};
+
 export default function Home() {
-  const availableFiles = mockFiles.filter(f => f.status === 'available');
+  const availableFiles = mockFiles.filter(f => f.status === 'available').slice(0, 3);
 
   return (
-    <div className="container py-8">
-      <div className="space-y-4 mb-8 text-center">
-        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-          Premium Data Marketplace
-        </h1>
-        <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-          Instantly acquire high-quality, verified CSV datasets for your business intelligence and marketing needs.
-        </p>
-        <div className="relative max-w-md mx-auto">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input placeholder="Search for datasets..." className="pl-10" />
+    <>
+      <section className="py-20 text-center">
+        <div className="container">
+          <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
+            Data Delivery
+          </h1>
+          <p className="max-w-2xl mx-auto mt-4 text-lg text-muted-foreground md:text-xl">
+            The easiest way to buy and sell data.
+          </p>
+          <Button size="lg" className="mt-8" asChild>
+            <Link href="#">
+              Browse data <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </Button>
         </div>
-      </div>
+      </section>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {availableFiles.map((file) => (
-          <FileCard key={file.id} file={file} />
-        ))}
-      </div>
-    </div>
+      <section className="py-20 bg-muted">
+        <div className="container">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">How It Works</h2>
+            <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">
+              A simple, straightforward process to get the data you need.
+            </p>
+          </div>
+          <div className="grid gap-12 md:grid-cols-3">
+            <HowItWorksStep 
+              icon={Search} 
+              title="Browse"
+              description="Explore our marketplace of high-quality, verified datasets across various categories."
+            />
+            <HowItWorksStep 
+              icon={HandCoins}
+              title="Purchase"
+              description="Securely buy the data you need with a one-time payment. No subscriptions, no hidden fees."
+            />
+            <HowItWorksStep 
+              icon={Download}
+              title="Download"
+              description="Instantly receive a download link for your purchased CSV file. It's that simple."
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container">
+           <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Featured Datasets</h2>
+            <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">
+              Check out some of the most popular datasets available right now.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {availableFiles.map((file) => (
+              <FileCard key={file.id} file={file} />
+            ))}
+          </div>
+          <div className="mt-12 text-center">
+             <Button variant="outline" asChild>
+                <Link href="#">
+                  View All Datasets <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
