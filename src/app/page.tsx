@@ -1,9 +1,10 @@
 import { FileCard } from "@/components/store/file-card";
 import type { CsvFile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Search, HandCoins, Download, Briefcase, BarChart, Mail, Building } from "lucide-react";
+import { ArrowRight, Search, HandCoins, Download, Briefcase, BarChart, Mail, Building, ShieldCheck, FileCheck2, BadgePercent, Clock, AreaChart, Users, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 
 const mockFiles: CsvFile[] = [
   {
@@ -82,14 +83,56 @@ const HowItWorksStep = ({ icon, title, description }: { icon: React.ElementType,
   );
 };
 
+const WhyChooseUsItem = ({ icon, title, description }: { icon: React.ElementType, title: string, description: string }) => {
+    const Icon = icon;
+    return (
+      <div className="flex items-start space-x-4">
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary flex-shrink-0">
+          <Icon className="w-6 h-6" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold">{title}</h3>
+          <p className="text-muted-foreground">{description}</p>
+        </div>
+      </div>
+    );
+};
+
+const CategoryCard = ({ icon, name }: { icon: React.ElementType, name: string }) => {
+  const Icon = icon;
+  return (
+    <Link href="#">
+      <Card className="group transition-all duration-300 hover:bg-primary/5 hover:shadow-lg">
+        <CardContent className="p-6 flex flex-col items-center text-center">
+            <div className="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-muted group-hover:bg-primary/10 text-muted-foreground group-hover:text-primary transition-colors">
+                <Icon className="w-8 h-8" />
+            </div>
+            <h3 className="text-lg font-semibold">{name}</h3>
+        </CardContent>
+      </Card>
+    </Link>
+  )
+}
+
 export default function Home() {
   const availableFiles = mockFiles.filter(f => f.status === 'available').slice(0, 3);
-  const categories = [
+  const searchCategories = [
     { name: "Business", icon: Briefcase },
     { name: "eCommerce", icon: BarChart },
     { name: "Email Lists", icon: Mail },
     { name: "Health", icon: Download },
     { name: "Property Records", icon: Building },
+  ];
+
+   const browseCategories = [
+    { name: "Financial Data", icon: BarChart },
+    { name: "B2B Contact Lists", icon: Users },
+    { name: "Real Estate", icon: Building },
+    { name: "Company Data", icon: Briefcase },
+    { name: "Public Records", icon: FileCheck2 },
+    { name: "eCommerce Trends", icon: TrendingUp },
+    { name: "Demographics", icon: AreaChart },
+    { name: "Healthcare", icon: Mail },
   ];
 
   return (
@@ -111,7 +154,7 @@ export default function Home() {
               </Button>
             </div>
             <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {categories.map((category) => (
+              {searchCategories.map((category) => (
                 <Button key={category.name} variant="ghost" className="text-muted-foreground" asChild>
                   <Link href="#">
                     <category.icon className="mr-2 h-4 w-4" />
@@ -151,7 +194,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      
       <section className="py-20">
         <div className="container">
            <div className="mb-12 text-center">
@@ -166,11 +209,89 @@ export default function Home() {
             ))}
           </div>
           <div className="mt-12 text-center">
-             <Button variant="outline" asChild>
+             <Button variant="outline" asChild size="lg">
                 <Link href="#">
                   View All Datasets <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 bg-muted">
+        <div className="container">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Browse by Category</h2>
+            <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">
+              Find the specific data you need by exploring our categories.
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {browseCategories.map((category) => (
+                <CategoryCard key={category.name} icon={category.icon} name={category.name} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container">
+            <div className="grid items-center gap-12 lg:grid-cols-2">
+                <div className="space-y-4">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Why Choose Us?</h2>
+                    <p className="text-muted-foreground text-lg">
+                        We provide high-quality, reliable data with a focus on simplicity and security.
+                    </p>
+                     <div className="space-y-8 pt-4">
+                        <WhyChooseUsItem 
+                            icon={ShieldCheck}
+                            title="Verified Data"
+                            description="Every dataset is manually verified to ensure accuracy and quality. No more guessing games."
+                        />
+                        <WhyChooseUsItem 
+                            icon={FileCheck2}
+                            title="Simple & Transparent"
+                            description="One-time payments for the data you need. No subscriptions or hidden fees. Ever."
+                        />
+                        <WhyChooseUsItem 
+                            icon={BadgePercent}
+                            title="Exclusive Leads"
+                            description="Purchase exclusive, high-intent leads that are sold only once, giving you a competitive edge."
+                        />
+                         <WhyChooseUsItem 
+                            icon={Clock}
+                            title="Instant Access"
+                            description="Get immediate access to your purchased data. No waiting, no delays. Download your files right away."
+                        />
+                    </div>
+                </div>
+                <div>
+                  <img
+                      alt="Data analysis illustration"
+                      className="mx-auto aspect-square overflow-hidden rounded-xl object-cover"
+                      data-ai-hint="data analysis"
+                      height="550"
+                      src="https://placehold.co/550x550.png"
+                      width="550"
+                  />
+                </div>
+            </div>
+        </div>
+      </section>
+
+       <section className="py-20 bg-muted">
+        <div className="container text-center">
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Ready to Get Started?</h2>
+          <p className="max-w-xl mx-auto mt-3 text-lg text-muted-foreground">
+            Explore our datasets or sign up today to access exclusive leads.
+          </p>
+          <div className="mt-8 flex justify-center gap-4">
+            <Button size="lg" asChild>
+              <Link href="#">Browse Datasets</Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+               <Link href="/signup">Create an Account</Link>
+            </Button>
           </div>
         </div>
       </section>
