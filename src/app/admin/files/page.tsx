@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, ToggleLeft, ToggleRight } from "lucide-react";
 import type { CsvFile } from "@/lib/types";
+import { Card } from "@/components/ui/card";
 
 const mockFiles: CsvFile[] = [
   {
@@ -113,14 +114,14 @@ export default function FilesPage() {
       <div className="flex items-center">
         <h1 className="text-lg font-semibold md:text-2xl">Files</h1>
       </div>
-      <div className="rounded-lg border shadow-sm">
+      <Card className="rounded-lg border shadow-sm hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Rows</TableHead>
+              <TableHead className="hidden lg:table-cell">Category</TableHead>
+              <TableHead className="hidden sm:table-cell">Price</TableHead>
+              <TableHead className="hidden sm:table-cell">Rows</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
@@ -131,11 +132,11 @@ export default function FilesPage() {
             {files.map((file) => (
               <TableRow key={file.id}>
                 <TableCell className="font-medium">{file.name}</TableCell>
-                <TableCell>{file.category}</TableCell>
-                <TableCell>${file.price.toFixed(2)}</TableCell>
-                <TableCell>{file.rowCount.toLocaleString()}</TableCell>
+                <TableCell className="hidden lg:table-cell">{file.category}</TableCell>
+                <TableCell className="hidden sm:table-cell">${file.price.toFixed(2)}</TableCell>
+                <TableCell className="hidden sm:table-cell">{file.rowCount.toLocaleString()}</TableCell>
                 <TableCell>
-                  <Badge variant={getStatusBadgeVariant(file.status)}>
+                  <Badge variant={getStatusBadgeVariant(file.status)} className="capitalize">
                     {file.status}
                   </Badge>
                 </TableCell>
@@ -159,6 +160,41 @@ export default function FilesPage() {
             ))}
           </TableBody>
         </Table>
+      </Card>
+      <div className="grid gap-4 md:hidden">
+        {files.map(file => (
+          <Card key={file.id} className="p-4 space-y-4">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="font-medium">{file.name}</p>
+                  <p className="text-sm text-muted-foreground">{file.category}</p>
+                </div>
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button aria-haspopup="true" size="icon" variant="ghost">
+                        <MoreHorizontal className="h-4 w-4" />
+                        <span className="sr-only">Toggle menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem onSelect={() => toggleFileStatus(file.id, file.status)}>
+                        {file.status === 'sold' ? <><ToggleRight className="mr-2 h-4 w-4" /> Re-list</> : <><ToggleLeft className="mr-2 h-4 w-4" /> Unlist</>}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+              </div>
+               <div className="flex items-center justify-between text-sm">
+                  <Badge variant={getStatusBadgeVariant(file.status)} className="capitalize">
+                    {file.status}
+                  </Badge>
+                 <div className="text-right">
+                    <p className="font-semibold">${file.price.toFixed(2)}</p>
+                    <p className="text-muted-foreground">{file.rowCount.toLocaleString()} rows</p>
+                 </div>
+               </div>
+          </Card>
+        ))}
       </div>
     </main>
   );

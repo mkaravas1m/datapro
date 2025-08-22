@@ -137,25 +137,25 @@ export default function Home() {
 
   return (
     <>
-      <section className="py-20 text-center animate-fade-in">
+      <section className="py-12 md:py-20 text-center animate-fade-in">
         <div className="container">
-          <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl">
             Data Delivery
           </h1>
-          <p className="max-w-2xl mx-auto mt-4 text-lg text-muted-foreground md:text-xl">
+          <p className="max-w-2xl mx-auto mt-4 text-lg text-muted-foreground">
             The easiest way to buy and sell data.
           </p>
           <div className="max-w-xl mx-auto mt-8">
             <div className="flex w-full items-center space-x-2">
-              <Input type="text" placeholder="Search for datasets..." className="flex-1 text-base" />
+              <Input type="text" placeholder="Search for datasets..." className="flex-1" />
               <Button type="submit" size="lg">
                 <Search className="h-5 w-5" />
-                <span className="ml-2">Search</span>
+                <span className="hidden sm:inline ml-2">Search</span>
               </Button>
             </div>
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
+            <div className="flex flex-wrap justify-center gap-x-2 gap-y-2 mt-4">
               {searchCategories.map((category) => (
-                <Button key={category.name} variant="ghost" className="text-muted-foreground" asChild>
+                <Button key={category.name} variant="ghost" className="text-muted-foreground text-xs sm:text-sm" asChild>
                   <Link href="#">
                     <category.icon className="mr-2 h-4 w-4" />
                     {category.name}
@@ -167,7 +167,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 bg-muted animate-fade-in [animation-delay:200ms]">
+      <section className="py-12 md:py-20 bg-muted animate-fade-in [animation-delay:200ms]">
         <div className="container">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">How It Works</h2>
@@ -195,7 +195,7 @@ export default function Home() {
         </div>
       </section>
       
-      <section className="py-20 animate-fade-in [animation-delay:400ms]">
+      <section className="py-12 md:py-20 animate-fade-in [animation-delay:400ms]">
         <div className="container">
            <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Featured Datasets</h2>
@@ -210,7 +210,7 @@ export default function Home() {
           </div>
           <div className="mt-12 text-center">
              <Button variant="outline" asChild size="lg">
-                <Link href="#">
+                <Link href="/shop">
                   View All Datasets <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -218,7 +218,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 bg-muted animate-fade-in [animation-delay:600ms]">
+      <section className="py-12 md:py-20 bg-muted animate-fade-in [animation-delay:600ms]">
         <div className="container">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Browse by Category</h2>
@@ -226,7 +226,7 @@ export default function Home() {
               Find the specific data you need by exploring our categories.
             </p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {browseCategories.map((category) => (
                 <CategoryCard key={category.name} icon={category.icon} name={category.name} />
             ))}
@@ -234,7 +234,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 animate-fade-in [animation-delay:800ms]">
+      <section className="py-12 md:py-20 animate-fade-in [animation-delay:800ms]">
         <div className="container">
             <div className="grid items-center gap-12 lg:grid-cols-2">
                 <div className="space-y-4">
@@ -265,7 +265,7 @@ export default function Home() {
                         />
                     </div>
                 </div>
-                <div>
+                <div className="hidden lg:block">
                   <img
                       alt="Data analysis illustration"
                       className="mx-auto aspect-square overflow-hidden rounded-xl object-cover"
@@ -279,17 +279,17 @@ export default function Home() {
         </div>
       </section>
 
-       <section className="py-20 bg-muted animate-fade-in [animation-delay:1000ms]">
+       <section className="py-12 md:py-20 bg-muted animate-fade-in [animation-delay:1000ms]">
         <div className="container text-center">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Ready to Get Started?</h2>
           <p className="max-w-xl mx-auto mt-3 text-lg text-muted-foreground">
             Explore our datasets or sign up today to access exclusive leads.
           </p>
-          <div className="mt-8 flex justify-center gap-4">
-            <Button size="lg" asChild>
-              <Link href="#">Browse Datasets</Link>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button size="lg" asChild className="w-full sm:w-auto">
+              <Link href="/shop">Browse Datasets</Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
+            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
                <Link href="/signup">Create an Account</Link>
             </Button>
           </div>
