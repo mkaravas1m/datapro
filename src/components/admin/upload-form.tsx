@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState, useFormStatus } from "react";
 import {
   Card,
   CardContent,
@@ -38,7 +38,7 @@ function SubmitButton() {
 }
 
 export function UploadForm() {
-  const [state, formAction] = useFormState(generatePreviewAction, initialState);
+  const [state, formAction] = useActionState(generatePreviewAction, initialState);
   const [fileSelected, setFileSelected] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const dataUriRef = useRef<HTMLInputElement>(null);
