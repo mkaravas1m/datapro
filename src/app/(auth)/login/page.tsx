@@ -69,7 +69,7 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="m@example.com" {...field} />
+                      <Input placeholder="m@example.com" {...field} name="email" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -82,7 +82,7 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" {...field} name="password" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
