@@ -1,6 +1,8 @@
+
 "use server";
 
 import { generateCsvPreview } from "@/ai/flows/generate-csv-preview";
+import { signIn } from "@/app/api/auth/[...nextauth]/route";
 import { z } from "zod";
 
 const GeneratePreviewInputSchema = z.object({
@@ -36,3 +38,23 @@ export async function generatePreviewAction(prevState: any, formData: FormData) 
     };
   }
 }
+
+export async function loginAction(prevState: any, formData: FormData) {
+  try {
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    await signIn("credentials", { email, password, redirect: true, redirectTo: "/dashboard" });
+    
+    return {
+      message: "Logged in successfully."
+    }
+
+  } catch (error: any) {
+    if (error.message.includes("CredentialsSignin")) {
+      return { message: "Invalid email or password." };
+    }
+    return { message: "An unexpected error occurred. Please try again." };
+  }
+}
+
