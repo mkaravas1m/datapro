@@ -119,25 +119,5 @@ export default {
   },
   plugins: [
     require('tailwindcss-animate'),
-    function({ addUtilities }: { addUtilities: (utilities: object) => void }) {
-      const newUtilities = {
-        '.animation-delay-200': {
-          'animation-delay': '200ms',
-        },
-        '.animation-delay-400': {
-          'animation-delay': '400ms',
-        },
-        '.animation-delay-600': {
-          'animation-delay': '600ms',
-        },
-        '.animation-delay-800': {
-          'animation-delay': '800ms',
-        },
-        '.animation-delay-1000': {
-          'animation-delay': '1000ms',
-        },
-      }
-      addUtilities(newUtilities)
-    }
   ],
 } satisfies Config;

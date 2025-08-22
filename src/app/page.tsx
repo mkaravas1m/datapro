@@ -167,7 +167,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 bg-muted animate-fade-in animation-delay-200">
+      <section className="py-20 bg-muted animate-fade-in [animation-delay:200ms]">
         <div className="container">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">How It Works</h2>
@@ -195,7 +195,7 @@ export default function Home() {
         </div>
       </section>
       
-      <section className="py-20 animate-fade-in animation-delay-400">
+      <section className="py-20 animate-fade-in [animation-delay:400ms]">
         <div className="container">
            <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Featured Datasets</h2>
@@ -218,7 +218,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 bg-muted animate-fade-in animation-delay-600">
+      <section className="py-20 bg-muted animate-fade-in [animation-delay:600ms]">
         <div className="container">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Browse by Category</h2>
@@ -234,7 +234,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 animate-fade-in animation-delay-800">
+      <section className="py-20 animate-fade-in [animation-delay:800ms]">
         <div className="container">
             <div className="grid items-center gap-12 lg:grid-cols-2">
                 <div className="space-y-4">
@@ -279,7 +279,7 @@ export default function Home() {
         </div>
       </section>
 
-       <section className="py-20 bg-muted animate-fade-in animation-delay-1000">
+       <section className="py-20 bg-muted animate-fade-in [animation-delay:1000ms]">
         <div className="container text-center">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Ready to Get Started?</h2>
           <p className="max-w-xl mx-auto mt-3 text-lg text-muted-foreground">
