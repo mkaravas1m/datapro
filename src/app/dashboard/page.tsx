@@ -20,8 +20,8 @@ import { Terminal } from "lucide-react";
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   
   const [orders, setOrders] = useState<Order[]>([]);
@@ -29,6 +29,12 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isVerifying, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login?message=Please log in to view your dashboard.");
+    }
+  }, [user, router]);
 
   useEffect(() => {
     const sessionId = searchParams.get("session_id");
@@ -87,17 +93,12 @@ export default function DashboardPage() {
     }
   }, [user, isVerifying]); // Rerun when payment is being verified
 
-  if (loading) {
+  if (loading || !user) {
     return (
         <div className="container py-8 flex justify-center items-center h-[calc(100vh-8rem)]">
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
         </div>
     );
-  }
-
-  if (!user) {
-     router.push("/login?message=Please log in to view your dashboard.");
-     return null;
   }
 
   const userBalance = profile?.balance ?? 0;
