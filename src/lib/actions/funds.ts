@@ -42,7 +42,7 @@ export async function addFunds(amount: number, userId: string, description: stri
     try {
         const { error: upsertError } = await supabase
             .from('profiles')
-            .upsert({ id: userId, balance: newBalance, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+            .upsert({ id: userId, balance: newBalance, updated_at: new Date().toISOString() });
 
         if (upsertError) {
             throw upsertError;
