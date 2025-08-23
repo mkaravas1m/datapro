@@ -1,3 +1,4 @@
+
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -56,5 +57,6 @@ export async function signup(prevState: any, formData: FormData) {
 export async function logout() {
   const supabase = createClient();
   await supabase.auth.signOut();
+  revalidatePath("/", "layout");
   redirect("/login");
 }
