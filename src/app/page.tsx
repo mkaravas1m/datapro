@@ -71,7 +71,7 @@ const faqItems = [
     }
 ];
 
-export default async function Home() {
+async function getFeaturedFiles() {
   const supabase = createClient();
   const { data: filesData, error } = await supabase
     .from('csv_files')
@@ -79,7 +79,15 @@ export default async function Home() {
     .eq('status', 'available')
     .limit(4);
 
-  const availableFiles: CsvFile[] = filesData || [];
+  if (error) {
+    console.error('Error fetching featured files:', error);
+    return [];
+  }
+  return filesData || [];
+}
+
+export default async function Home() {
+  const availableFiles: CsvFile[] = await getFeaturedFiles();
 
   return (
     <div className="w-full">

@@ -3,26 +3,31 @@ import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Zap, PlusCircle, ArrowRight } from "lucide-react";
-import type { ExclusiveLeadBatch } from "@/lib/types";
+import type { ExclusiveLeadBatch, Profile } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
-
-const mockLeadBatches: ExclusiveLeadBatch[] = [
-    { id: '1', name: 'USA B2C High-Income Homeowners', pricePerLead: 1.25, totalLeads: 10000, availableLeads: 7500, status: 'available' },
-    { id: '2', name: 'UK Tech Startups - Pre-seed', pricePerLead: 2.50, totalLeads: 5000, availableLeads: 1200, status: 'available' },
-    { id: '3', name: 'Canada Real Estate Investors', pricePerLead: 1.75, totalLeads: 8000, availableLeads: 0, status: 'sold_out' },
-    { id: '4', name: 'Australia E-commerce Founders', pricePerLead: 2.10, totalLeads: 6000, availableLeads: 6000, status: 'available' },
-];
-
 
 export default async function ExclusiveLeadsPage() {
     const supabase = createClient();
 
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data?.user) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
         redirect("/login");
     }
 
-    const userBalance = 750.50; // Mock data
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+    
+    const { balance: userBalance = 0 }: Profile = profile || { balance: 0 };
+
+    const { data: leadBatchesData } = await supabase
+        .from('exclusive_lead_batches')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    const leadBatches: ExclusiveLeadBatch[] = leadBatchesData || [];
 
     return (
         <div className="container py-8 md:py-12">
@@ -54,13 +59,13 @@ export default async function ExclusiveLeadsPage() {
                 <div className="md:col-span-2">
                     <h2 className="pb-4 text-2xl font-bold tracking-tight border-b">Available Lead Campaigns</h2>
                     <div className="mt-6 space-y-6">
-                        {mockLeadBatches.map(batch => (
+                        {leadBatches.map(batch => (
                             <Card key={batch.id} className="transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg">
                                 <CardHeader>
                                     <div className="flex items-start justify-between">
                                         <div className="max-w-lg">
                                             <CardTitle className="text-xl">{batch.name}</CardTitle>
-                                            <CardDescription className="mt-1">Price per lead: ${batch.pricePerLead.toFixed(2)}</CardDescription>
+                                            <CardDescription className="mt-1">Price per lead: ${batch.price_per_lead.toFixed(2)}</CardDescription>
                                         </div>
                                          <Badge variant={batch.status === 'available' ? 'default' : 'secondary'}>{batch.status === 'available' ? 'Active' : 'Sold Out'}</Badge>
                                     </div>
@@ -69,7 +74,7 @@ export default async function ExclusiveLeadsPage() {
                                     <div className="flex items-end justify-between">
                                         <div>
                                             <p className="text-sm font-medium text-muted-foreground">Leads Remaining</p>
-                                            <p className="text-2xl font-semibold">{batch.availableLeads.toLocaleString()} / {batch.totalLeads.toLocaleString()}</p>
+                                            <p className="text-2xl font-semibold">{batch.available_leads.toLocaleString()} / {batch.total_leads.toLocaleString()}</p>
                                         </div>
                                         <Button disabled={batch.status !== 'available'}>
                                             Start Campaign <ArrowRight className="ml-2" />
