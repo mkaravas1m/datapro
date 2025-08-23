@@ -6,7 +6,7 @@ import { Package2, LogIn, UserPlus, Menu, LayoutDashboard, Zap, LogOut } from "l
 import { Button } from "@/components/ui/button";
 import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "../ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "../ui/sheet";
 import React from "react";
 import { Separator } from "../ui/separator";
 import { logout } from "@/lib/actions/auth";
@@ -23,6 +23,10 @@ export function Header() {
     { href: "/exclusive-leads", label: "Exclusive Leads", icon: Zap },
     { href: "/#faq", label: "FAQ" },
   ];
+  
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -91,24 +95,27 @@ export function Header() {
                   <span className="sr-only">Open Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="pr-0">
-                 <SheetTitle>Menu</SheetTitle>
-                 <Link
-                    href="/"
-                    className="mr-6 flex items-center space-x-2 mb-8"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Package2 className="h-6 w-6 text-primary" />
-                    <span className="font-bold">DataSalesPro</span>
-                  </Link>
-                <div className="flex flex-col h-full">
-                    <div className="flex flex-col pr-6">
+              <SheetContent side="left">
+                <SheetHeader>
+                  <SheetTitle asChild>
+                    <Link
+                      href="/"
+                      className="flex items-center space-x-2"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Package2 className="h-6 w-6 text-primary" />
+                      <span className="font-bold">DataSalesPro</span>
+                    </Link>
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="flex h-full flex-col justify-between">
+                    <nav className="grid gap-4 py-6">
                         {navLinks.map((link) => (
                         <Link
                             key={link.href}
                             href={link.href}
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className={cn("flex items-center gap-2 py-2 text-lg transition-colors hover:text-foreground/80", 
+                            className={cn("flex items-center gap-2 py-2 text-lg font-medium transition-colors hover:text-foreground/80", 
                             pathname === link.href ? "text-foreground" : "text-foreground/60"
                             )}
                         >
@@ -116,21 +123,20 @@ export function Header() {
                             {link.label}
                         </Link>
                         ))}
-                    </div>
+                    </nav>
 
-                    <Separator className="my-4" />
-
-                    <div className="flex flex-col pr-6">
+                    <div className="grid gap-2">
+                         <Separator />
                          {!isLoggedIn ? (
                             <>
-                                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-lg text-foreground/60 hover:text-foreground/80"><LogIn className="h-5 w-5" /> Login</Link>
-                                <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-lg text-foreground/60 hover:text-foreground/80"><UserPlus className="h-5 w-5" /> Sign Up</Link>
+                                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-lg font-medium text-foreground/60 hover:text-foreground/80"><LogIn className="h-5 w-5" /> Login</Link>
+                                <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-lg font-medium text-foreground/60 hover:text-foreground/80"><UserPlus className="h-5 w-5" /> Sign Up</Link>
                             </>
                          ) : (
                             <>
-                             <Link href={'/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-lg text-foreground/60 hover:text-foreground/80"><LayoutDashboard className="h-5 w-5" /> Dashboard</Link>
+                             <Link href={'/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-lg font-medium text-foreground/60 hover:text-foreground/80"><LayoutDashboard className="h-5 w-5" /> Dashboard</Link>
                              <form action={logout}>
-                                <button type="submit" className="flex w-full items-center gap-2 py-2 text-lg text-foreground/60 hover:text-foreground/80"><LogOut className="h-5 w-5" /> Logout</button>
+                                <button type="submit" onClick={() => setIsMobileMenuOpen(false)} className="flex w-full items-center gap-2 py-2 text-lg font-medium text-foreground/60 hover:text-foreground/80"><LogOut className="h-5 w-5" /> Logout</button>
                              </form>
                             </>
                          )}
