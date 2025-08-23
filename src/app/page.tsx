@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Zap, BookOpen, Settings2, Share2, MessageSquare, Star, CheckCircle } from "lucide-react";
+import { ArrowRight, Zap, BookOpen, Settings2, Share2, Star, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -57,14 +57,15 @@ const TestimonialCard = ({ name, role, avatar, text }: { name: string, role: str
   </Card>
 );
 
-const PricingCard = ({ title, price, features, popular }: { title: string, price: string, features: string[], popular?: boolean }) => (
-  <Card className={`relative ${popular ? 'border-primary ring-2 ring-primary' : 'bg-secondary/50 border-white/10'}`}>
+const PricingCard = ({ title, price, features, popular, description }: { title: string, price: string, features: string[], popular?: boolean, description: string }) => (
+  <Card className={`relative flex flex-col ${popular ? 'border-primary ring-2 ring-primary' : 'bg-secondary/50 border-white/10'}`}>
      {popular && <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-3 py-1 text-sm font-semibold text-primary-foreground bg-primary rounded-full">Most Popular</div>}
     <CardHeader>
       <CardTitle>{title}</CardTitle>
-      <CardDescription className="text-4xl font-bold">{price}<span className="text-lg font-normal text-muted-foreground">/month</span></CardDescription>
+      <div className="text-4xl font-bold">{price}<span className="text-lg font-normal text-muted-foreground">/month</span></div>
+      <CardDescription>{description}</CardDescription>
     </CardHeader>
-    <CardContent className="space-y-4">
+    <CardContent className="flex-grow space-y-4">
       <ul className="space-y-2">
         {features.map((feature, i) => (
           <li key={i} className="flex items-center gap-2">
@@ -73,8 +74,10 @@ const PricingCard = ({ title, price, features, popular }: { title: string, price
           </li>
         ))}
       </ul>
-      <Button className="w-full" variant={popular ? 'default' : 'outline'}>Get Started</Button>
     </CardContent>
+    <CardFooter className="mt-auto">
+      <Button className="w-full" variant={popular ? 'default' : 'outline'}>Get Started</Button>
+    </CardFooter>
   </Card>
 );
 
@@ -104,7 +107,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-12 md:py-24 bg-secondary/30 animate-fade-in [animation-delay:200ms]">
+      <section id="features" className="py-12 md:py-24 bg-secondary/30 animate-fade-in [animation-delay:200ms]">
         <div className="container">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Features</h2>
@@ -154,21 +157,21 @@ export default function Home() {
         </div>
       </section>
       
-      <section className="py-12 md:py-24 animate-fade-in [animation-delay:800ms]">
+      <section id="pricing" className="py-12 md:py-24 animate-fade-in [animation-delay:800ms]">
         <div className="container">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Pricing</h2>
             <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">Choose a plan that's right for you.</p>
           </div>
-          <div className="grid gap-8 md:grid-cols-3 items-start">
-            <PricingCard title="Starter" price="$9" features={["10,000 words/month", "Basic genre selection", "Standard support"]} />
-            <PricingCard title="Pro" price="$29" features={["50,000 words/month", "All genres", "Advanced customization", "Priority support"]} popular />
-            <PricingCard title="Team" price="$79" features={["200,000 words/month", "Collaborative features", "API access", "Dedicated support"]} />
+          <div className="grid gap-8 md:grid-cols-3 items-stretch">
+            <PricingCard title="Starter" price="$9" description="For individuals and hobbyists." features={["10,000 words/month", "Basic genre selection", "Standard support"]} />
+            <PricingCard title="Pro" price="$29" description="For professional writers and creators." features={["50,000 words/month", "All genres", "Advanced customization", "Priority support"]} popular />
+            <PricingCard title="Team" price="$79" description="For businesses and collaborators." features={["200,000 words/month", "Collaborative features", "API access", "Dedicated support"]} />
           </div>
         </div>
       </section>
 
-      <section className="py-12 md:py-24 bg-secondary/30 animate-fade-in [animation-delay:1000ms]">
+      <section id="faq" className="py-12 md:py-24 bg-secondary/30 animate-fade-in [animation-delay:1000ms]">
         <div className="container max-w-3xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Frequently Asked Questions</h2>

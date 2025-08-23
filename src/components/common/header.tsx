@@ -57,6 +57,7 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="pr-0">
+                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                  <Link
                     href="/"
                     className="mr-6 flex items-center space-x-2 mb-8"
@@ -94,7 +95,6 @@ export function Header() {
                          )}
                     </div>
                 </div>
-              <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
               </SheetContent>
             </Sheet>
         </div>
