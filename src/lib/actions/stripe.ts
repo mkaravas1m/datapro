@@ -8,8 +8,6 @@ import { createClient } from "@/lib/supabase/server";
 import { addFunds } from "./funds";
 import { revalidatePath } from "next/cache";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function createCheckoutSession(amount: number) {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -23,6 +21,7 @@ export async function createCheckoutSession(amount: number) {
     }
 
     const origin = headers().get('origin')!;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
     try {
         const session = await stripe.checkout.sessions.create({
@@ -35,7 +34,7 @@ export async function createCheckoutSession(amount: number) {
                             name: 'DataSalesPro Balance Top-up',
                             description: `Add $${amount.toFixed(2)} to your account balance.`,
                         },
-                        unit_amount: amount * 100, // Amount in cents
+                        unit_amount: Math.round(amount * 100), // Amount in cents, rounded to avoid floating point issues
                     },
                     quantity: 1,
                 },
@@ -51,7 +50,7 @@ export async function createCheckoutSession(amount: number) {
         
         return { url: session.url, error: null };
     } catch (error: any) {
-        console.error("Error creating Stripe session: ", error);
+        console.error("Error creating Stripe session: ", error.message);
         return { error: "Could not create checkout session.", url: null };
     }
 }
@@ -60,6 +59,8 @@ export async function verifyPaymentAndUpdateBalance(sessionId: string) {
     if (!sessionId) {
         return { error: "Session ID is required." };
     }
+    
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -104,7 +105,7 @@ export async function verifyPaymentAndUpdateBalance(sessionId: string) {
             return { error: "Payment not successful." };
         }
     } catch (error: any) {
-        console.error("Error verifying Stripe session:", error);
+        console.error("Error verifying Stripe session:", error.message);
         return { error: "Failed to verify payment." };
     }
 }
