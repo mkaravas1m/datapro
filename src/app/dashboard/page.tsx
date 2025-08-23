@@ -1,13 +1,6 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { Order, Transaction, Profile } from "@/lib/types";
-import { Download, ArrowUpRight, DollarSign } from "lucide-react";
-import Link from "next/link";
-import { AddFundsDialog } from "@/components/dashboard/add-funds-dialog";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import type { Order, Transaction, Profile } from "@/lib/types";
 import { DashboardClientContent } from "@/components/dashboard/dashboard-client-content";
 
 export default async function DashboardPage() {
