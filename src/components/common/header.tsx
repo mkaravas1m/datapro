@@ -10,9 +10,11 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "../ui/sheet";
 import React from "react";
 import { Separator } from "../ui/separator";
 import { logout } from "@/lib/actions/auth";
+import { useAuth } from "@/hooks/use-auth";
 
-export function Header({ user }: { user: any }) {
+export function Header() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const isLoggedIn = !!user;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 

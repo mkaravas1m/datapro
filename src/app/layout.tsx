@@ -34,7 +34,7 @@ export default async function RootLayout({
       <body className={cn('min-h-screen bg-background font-sans antialiased dark', inter.variable)}>
         <AuthProvider user={data.user}>
           <div className="relative flex min-h-screen flex-col">
-            <Header user={data.user} />
+            <Header />
             <main className="flex-1 pb-20 md:pb-0">{children}</main>
             <Footer />
             <BottomNav />
