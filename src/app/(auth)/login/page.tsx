@@ -3,21 +3,13 @@
 import { useActionState } from "react"
 import { useFormStatus } from "react-dom"
 import Link from "next/link"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import { login } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Terminal } from "lucide-react"
-import { useForm } from "react-hook-form"
-
-const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(1, { message: "Password is required." }),
-})
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -30,14 +22,6 @@ function SubmitButton() {
 
 export default function LoginPage() {
   const [state, formAction] = useActionState(login, undefined);
-
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  })
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] py-12">
