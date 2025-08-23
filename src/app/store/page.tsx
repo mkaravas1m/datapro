@@ -45,7 +45,7 @@ const mockFiles: CsvFile[] = [
     category: "Real Estate",
     rowCount: 85000,
     price: 600.00,
-    status: "sold",
+    status: "available",
     sample: [],
   },
     {

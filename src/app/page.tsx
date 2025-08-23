@@ -114,6 +114,8 @@ const faqItems = [
 ];
 
 export default function Home() {
+  const availableFiles = mockFiles.filter(file => file.status === 'available');
+
   return (
     <div className="w-full">
        <div className="absolute inset-0 -z-10 h-full w-full bg-background bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
@@ -154,7 +156,7 @@ export default function Home() {
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-             {mockFiles.map(file => (
+             {availableFiles.map(file => (
                 <FileCard key={file.id} file={file} />
              ))}
           </div>

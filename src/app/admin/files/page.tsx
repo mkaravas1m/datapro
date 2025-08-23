@@ -18,7 +18,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, ToggleLeft, ToggleRight } from "lucide-react";
+import { MoreHorizontal, ToggleLeft, ToggleRight, Archive, ArchiveRestore } from "lucide-react";
 import type { CsvFile } from "@/lib/types";
 import { Card } from "@/components/ui/card";
 
@@ -89,15 +89,8 @@ const mockFiles: CsvFile[] = [
 export default function FilesPage() {
   const [files, setFiles] = useState<CsvFile[]>(mockFiles);
 
-  const toggleFileStatus = (fileId: string, currentStatus: CsvFile['status']) => {
-    setFiles(files.map(file => {
-      if (file.id === fileId) {
-        if (currentStatus === 'sold') return { ...file, status: 'available' };
-        if (currentStatus === 'available') return { ...file, status: 'archived' };
-        if (currentStatus === 'archived') return { ...file, status: 'available' };
-      }
-      return file;
-    }));
+  const setFileStatus = (fileId: string, status: CsvFile['status']) => {
+    setFiles(files.map(file => file.id === fileId ? { ...file, status } : file));
   };
 
   const getStatusBadgeVariant = (status: CsvFile['status']) => {
@@ -150,9 +143,21 @@ export default function FilesPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem onSelect={() => toggleFileStatus(file.id, file.status)}>
-                        {file.status === 'sold' ? <><ToggleRight className="mr-2 h-4 w-4" /> Re-list</> : <><ToggleLeft className="mr-2 h-4 w-4" /> Unlist</>}
-                      </DropdownMenuItem>
+                       {file.status === 'sold' && (
+                        <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'available')}>
+                          <ToggleRight className="mr-2 h-4 w-4" /> Re-list
+                        </DropdownMenuItem>
+                      )}
+                      {file.status === 'available' && (
+                        <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'archived')}>
+                          <Archive className="mr-2 h-4 w-4" /> Archive
+                        </DropdownMenuItem>
+                      )}
+                      {file.status === 'archived' && (
+                         <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'available')}>
+                          <ArchiveRestore className="mr-2 h-4 w-4" /> Unarchive
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -178,9 +183,21 @@ export default function FilesPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem onSelect={() => toggleFileStatus(file.id, file.status)}>
-                        {file.status === 'sold' ? <><ToggleRight className="mr-2 h-4 w-4" /> Re-list</> : <><ToggleLeft className="mr-2 h-4 w-4" /> Unlist</>}
-                      </DropdownMenuItem>
+                      {file.status === 'sold' && (
+                        <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'available')}>
+                          <ToggleRight className="mr-2 h-4 w-4" /> Re-list
+                        </DropdownMenuItem>
+                      )}
+                      {file.status === 'available' && (
+                        <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'archived')}>
+                          <Archive className="mr-2 h-4 w-4" /> Archive
+                        </DropdownMenuItem>
+                      )}
+                      {file.status === 'archived' && (
+                         <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'available')}>
+                          <ArchiveRestore className="mr-2 h-4 w-4" /> Unarchive
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
               </div>
