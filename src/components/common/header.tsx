@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { Package2, LogIn, UserPlus, Menu, ShoppingCart, LayoutDashboard } from "lucide-react";
+import { Package2, LogIn, UserPlus, Menu, ShoppingCart, LayoutDashboard, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils";
@@ -17,8 +17,7 @@ export function Header() {
 
   const navLinks = [
     { href: "/store", label: "Store" },
-    { href: "/#featured", label: "Featured" },
-    { href: "/#features", label: "Why Us" },
+    { href: "/exclusive-leads", label: "Exclusive Leads", icon: Zap },
     { href: "/#faq", label: "FAQ" },
   ];
 
@@ -35,20 +34,21 @@ export function Header() {
 
         {/* Desktop Nav & Auth */}
         <div className="ml-auto hidden items-center space-x-6 md:flex">
-            <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
+            <nav className="flex items-center space-x-6 text-sm font-medium">
                 {navLinks.map((link) => (
                 <Link
                     key={link.href}
                     href={link.href}
-                    className={cn("transition-colors hover:text-foreground/80", 
+                    className={cn("flex items-center gap-1 transition-colors hover:text-foreground/80", 
                     pathname === link.href ? "text-foreground" : "text-foreground/60"
                     )}
                 >
+                    {link.icon && <link.icon className="h-4 w-4 text-primary" />}
                     {link.label}
                 </Link>
                 ))}
             </nav>
-            <div className="hidden items-center space-x-1 sm:space-x-2 md:flex">
+            <div className="flex items-center space-x-1 sm:space-x-2">
                 {!isLoggedIn ? (
                     <>
                     <Button asChild variant="ghost">
@@ -90,7 +90,7 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="pr-0">
-                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                 <SheetTitle>Menu</SheetTitle>
                  <Link
                     href="/"
                     className="mr-6 flex items-center space-x-2 mb-8"
@@ -106,10 +106,11 @@ export function Header() {
                             key={link.href}
                             href={link.href}
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className={cn("py-2 text-lg transition-colors hover:text-foreground/80", 
+                            className={cn("flex items-center gap-2 py-2 text-lg transition-colors hover:text-foreground/80", 
                             pathname === link.href ? "text-foreground" : "text-foreground/60"
                             )}
                         >
+                            {link.icon && <link.icon className="h-5 w-5 text-primary" />}
                             {link.label}
                         </Link>
                         ))}

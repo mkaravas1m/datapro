@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Order, Transaction } from "@/lib/types";
-import { Download, ArrowUpRight } from "lucide-react";
+import { Download, ArrowUpRight, DollarSign, PlusCircle } from "lucide-react";
+import Link from "next/link";
 
 const mockOrders: Order[] = [
   { id: "ORD001", fileId: "1", fileName: "USA B2B Company Leads", orderDate: "2023-06-23", amount: 499.99, status: 'paid', invoiceUrl: '#', downloadUrl: '#' },
@@ -17,6 +18,8 @@ const mockTransactions: Transaction[] = [
 ];
 
 export default function DashboardPage() {
+  const userBalance = 750.50; // Mock data
+
   return (
     <div className="container py-8">
       <h1 className="text-3xl font-bold mb-8">My Dashboard</h1>
@@ -67,14 +70,14 @@ export default function DashboardPage() {
                 <div className="grid gap-2">
                     <CardTitle>Transaction History</CardTitle>
                     <CardDescription>
-                        Your account balance history.
+                        Your account balance history for exclusive leads.
                     </CardDescription>
                 </div>
                 <Button asChild size="sm" className="ml-auto gap-1">
-                    <a href="/exclusive-leads">
-                        Buy Leads
+                    <Link href="/exclusive-leads">
+                        Manage Leads
                         <ArrowUpRight className="h-4 w-4" />
-                    </a>
+                    </Link>
                 </Button>
             </CardHeader>
             <CardContent>
@@ -108,7 +111,7 @@ export default function DashboardPage() {
         </Card>
         </div>
         
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 space-y-8">
           <Card>
             <CardHeader>
               <CardTitle>Account Information</CardTitle>
@@ -125,6 +128,25 @@ export default function DashboardPage() {
               <Button variant="outline" className="w-full">Edit Profile</Button>
             </CardContent>
           </Card>
+          
+           <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-md font-medium">Exclusive Leads Balance</CardTitle>
+                  <DollarSign className="h-5 w-5 text-primary" />
+              </CardHeader>
+              <CardContent>
+                  <div className="text-4xl font-bold">${userBalance.toFixed(2)}</div>
+                  <p className="text-xs text-muted-foreground">
+                      Use this balance for exclusive lead campaigns.
+                  </p>
+              </CardContent>
+              <CardFooter className="flex-col items-start gap-2">
+                  <Button className="w-full" asChild>
+                    <Link href="/exclusive-leads"><PlusCircle className="mr-2 h-4 w-4"/> Add Funds</Link>
+                  </Button>
+              </CardFooter>
+          </Card>
+
         </div>
 
       </div>
