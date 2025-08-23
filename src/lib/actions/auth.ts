@@ -28,13 +28,14 @@ export async function login(prevState: any, formData: FormData) {
 }
 
 export async function signup(prevState: any, formData: FormData) {
-  // Use the admin client for user creation to bypass RLS for profile insertion
-  const supabase = createAdminClient();
+  const supabase = createClient();
 
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   
+  // The handle_new_user function in Supabase should automatically create a
+  // profile when a new user signs up. We pass the full_name in the metadata.
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -55,34 +56,10 @@ export async function signup(prevState: any, formData: FormData) {
     }
   }
 
-  if (data.user) {
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({ id: data.user.id, full_name: name, email: email, balance: 100 });
-    
-    if (profileError) {
-      console.error('Profile Creation Error:', profileError);
-      // This is a critical error, but we'll return a generic message to the user.
-      // In a production app, you might want to delete the auth user or flag for manual review.
-      return {
-        message: "An error occurred during signup. Please try again."
-      }
-    }
-  } else {
-    // This case should ideally not be reached if signup was successful without an error
+  if (!data.user) {
     return {
         message: "An unknown error occurred during signup. Please try again."
     }
-  }
-
-  // After successful signup and profile creation, revalidate and redirect.
-  // We need to use the regular server client to set the session for the user.
-  const supabaseServer = createClient();
-  const { error: sessionError } = await supabaseServer.auth.signInWithPassword({ email, password });
-  
-  if (sessionError) {
-    // This is unlikely but possible. Redirect to login as a fallback.
-    redirect("/login?message=Signup successful, please log in.");
   }
   
   revalidatePath("/", "layout");
