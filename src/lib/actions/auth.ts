@@ -4,6 +4,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function login(prevState: any, formData: FormData) {
   const supabase = createClient();
@@ -27,7 +28,8 @@ export async function login(prevState: any, formData: FormData) {
 }
 
 export async function signup(prevState: any, formData: FormData) {
-  const supabase = createClient();
+  // Use the admin client for user creation to bypass RLS for profile insertion
+  const supabase = createAdminClient();
 
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -60,14 +62,33 @@ export async function signup(prevState: any, formData: FormData) {
     
     if (profileError) {
       console.error('Profile Creation Error:', profileError);
-      // Even if profile creation fails, we might still proceed or handle it differently.
-      // For now, we'll log it and let the user log in. The core user exists.
+      // This is a critical error, but we'll return a generic message to the user.
+      // In a production app, you might want to delete the auth user or flag for manual review.
+      return {
+        message: "An error occurred during signup. Please try again."
+      }
+    }
+  } else {
+    // This case should ideally not be reached if signup was successful without an error
+    return {
+        message: "An unknown error occurred during signup. Please try again."
     }
   }
 
+  // After successful signup and profile creation, revalidate and redirect.
+  // We need to use the regular server client to set the session for the user.
+  const supabaseServer = createClient();
+  const { error: sessionError } = await supabaseServer.auth.signInWithPassword({ email, password });
+  
+  if (sessionError) {
+    // This is unlikely but possible. Redirect to login as a fallback.
+    redirect("/login?message=Signup successful, please log in.");
+  }
+  
   revalidatePath("/", "layout");
   redirect("/dashboard");
 }
+
 
 export async function logout() {
   const supabase = createClient();
