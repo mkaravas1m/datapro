@@ -7,7 +7,6 @@ import { revalidatePath } from "next/cache";
 export async function addFunds(amount: number, userId: string, description: string = 'User-added funds') {
     const supabase = createClient();
 
-    // In a webhook context, we get the userId directly, so we don't need to fetch the user again.
     if (!userId) {
         return { error: "User ID is required to add funds." };
     }
@@ -19,6 +18,11 @@ export async function addFunds(amount: number, userId: string, description: stri
         .eq('id', userId)
         .single();
     
+    if (profileError && profileError.code !== 'PGRST116') { // PGRST116 is "No rows found"
+        console.error('Error fetching profile:', profileError);
+        return { error: "Could not retrieve user profile." };
+    }
+
     // If profile exists, update it
     if (profile) {
       const newBalance = profile.balance + amount;
@@ -28,16 +32,17 @@ export async function addFunds(amount: number, userId: string, description: stri
           .eq('id', userId);
       
       if (updateError) {
+          console.error('Error updating balance:', updateError);
           return { error: "Failed to update balance." };
       }
     } else {
-       // This case is less likely in the webhook flow if a profile is always created on sign-up,
-       // but it's good practice to handle it.
+       // Profile doesn't exist, so create it.
       const { error: createError } = await supabase
         .from('profiles')
         .insert({ id: userId, balance: amount });
       
       if (createError) {
+        console.error('Error creating profile:', createError);
         return { error: "Failed to create user profile." };
       }
     }
@@ -54,6 +59,7 @@ export async function addFunds(amount: number, userId: string, description: stri
         });
 
     if (transactionError) {
+        console.error('Error creating transaction:', transactionError);
         // Note: In a real-world app, you might want to roll back the balance update here.
         return { error: "Failed to record transaction." };
     }
