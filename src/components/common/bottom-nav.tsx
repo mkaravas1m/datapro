@@ -3,13 +3,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Store, LayoutDashboard, User, LogIn } from "lucide-react";
+import { Home, Store, LayoutDashboard, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function BottomNav() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const isLoggedIn = !!user;
 
   const navItems = [
@@ -19,6 +21,10 @@ export function BottomNav() {
       ? { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }
       : { href: "/login", label: "Login", icon: LogIn },
   ];
+
+  if (!isMobile) {
+    return null;
+  }
 
   return (
     <div className="lg:hidden fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t border-border">
