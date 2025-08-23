@@ -1,51 +1,119 @@
 
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { Order, Transaction, Profile } from "@/lib/types";
-import { Download, ArrowUpRight, DollarSign } from "lucide-react";
+import type { Order, Transaction, Profile, CsvFile } from "@/lib/types";
+import { Download, ArrowUpRight, DollarSign, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { AddFundsDialog } from "@/components/dashboard/add-funds-dialog";
+import { useAuth } from "@/hooks/use-auth";
+import { useEffect, useState, useTransition } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { verifyPaymentAndUpdateBalance } from "@/lib/actions/stripe";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Terminal } from "lucide-react";
 
-export default async function DashboardPage() {
-  const supabase = createClient();
+export default function DashboardPage() {
+  const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { toast } = useToast();
+  
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isVerifying, startTransition] = useTransition();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    redirect("/login");
+  useEffect(() => {
+    const sessionId = searchParams.get("session_id");
+    if (sessionId) {
+      startTransition(async () => {
+        const result = await verifyPaymentAndUpdateBalance(sessionId);
+        if (result.error) {
+          toast({
+            variant: "destructive",
+            title: "Payment Verification Failed",
+            description: result.error,
+          });
+        } else if (result.success) {
+           toast({
+            title: "Payment Successful!",
+            description: "Your balance has been updated.",
+          });
+          // Remove query params from URL
+          router.replace('/dashboard', { scroll: false });
+        }
+      });
+    }
+  }, [searchParams, router, toast]);
+
+  useEffect(() => {
+    if (user) {
+      const supabase = createClient();
+      const fetchData = async () => {
+        setLoading(true);
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        setProfile(profileData);
+
+        const { data: ordersData } = await supabase
+          .from('orders')
+          .select('*, file:csv_files ( name )')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        setOrders(ordersData as Order[] || []);
+
+        const { data: transactionsData } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        setTransactions(transactionsData || []);
+        
+        setLoading(false);
+      };
+      fetchData();
+    } else {
+        setLoading(false);
+    }
+  }, [user, isVerifying]); // Rerun when payment is being verified
+
+  if (loading) {
+    return (
+        <div className="container py-8 flex justify-center items-center h-[calc(100vh-8rem)]">
+            <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        </div>
+    );
   }
 
-  const { data: ordersData } = await supabase
-    .from('orders')
-    .select(`
-      *,
-      file:csv_files ( name )
-    `)
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
-  const orders: Order[] = ordersData || [];
+  if (!user) {
+     router.push("/login?message=Please log in to view your dashboard.");
+     return null;
+  }
 
-  const { data: transactionsData } = await supabase
-    .from('transactions')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
-  const transactions: Transaction[] = transactionsData || [];
-    
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  const { balance: userBalance = 0, ...userProfile }: Profile = profile || { balance: 0 };
+  const userBalance = profile?.balance ?? 0;
 
   return (
     <div className="container py-8">
       <h1 className="text-3xl font-bold mb-8">My Dashboard</h1>
+      {isVerifying && (
+         <Alert className="mb-4 bg-primary/10 border-primary/50">
+            <Terminal className="h-4 w-4" />
+            <AlertTitle>Verifying Payment</AlertTitle>
+            <AlertDescription>
+                Please wait while we confirm your transaction and update your balance. This may take a moment.
+            </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-8">
         <div className="grid gap-8 lg:grid-cols-3">
@@ -71,7 +139,7 @@ export default async function DashboardPage() {
               <CardContent className="space-y-4">
                 <div>
                   <p className="text-sm font-medium">Name</p>
-                  <p className="text-muted-foreground">{userProfile?.full_name ?? 'N/A'}</p>
+                  <p className="text-muted-foreground">{profile?.full_name ?? 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Email</p>
@@ -119,6 +187,11 @@ export default async function DashboardPage() {
                         </TableCell>
                       </TableRow>
                     ))}
+                     {orders.length === 0 && (
+                      <TableRow>
+                          <TableCell colSpan={6} className="text-center h-24">You haven't made any purchases yet.</TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
                 {/* Mobile Card List */}
@@ -145,6 +218,11 @@ export default async function DashboardPage() {
                       </CardContent>
                     </Card>
                   ))}
+                   {orders.length === 0 && (
+                      <div className="text-center py-12">
+                          <p>You haven't made any purchases yet.</p>
+                      </div>
+                    )}
                 </div>
               </CardContent>
             </Card>
@@ -180,7 +258,7 @@ export default async function DashboardPage() {
                           {transactions.map((t) => (
                               <TableRow key={t.id}>
                                   <TableCell className="hidden sm:table-cell">{new Date(t.created_at || '').toLocaleDateString()}</TableCell>
-                                  <TableCell className="font-medium">{t.description}</TableCell>
+                                  <TableCell className="font-medium text-xs">{t.description}</TableCell>
                                   <TableCell>
                                       <Badge variant="outline" className={t.type === 'deposit' ? 'text-green-600 border-green-600' : 'text-red-600 border-red-600'}>
                                           {t.type}
@@ -191,6 +269,11 @@ export default async function DashboardPage() {
                                   </TableCell>
                               </TableRow>
                           ))}
+                          {transactions.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={4} className="text-center h-24">No transactions yet.</TableCell>
+                            </TableRow>
+                          )}
                       </TableBody>
                   </Table>
               </CardContent>
