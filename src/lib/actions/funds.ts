@@ -13,30 +13,38 @@ export async function addFunds(amount: number) {
         return { error: "You must be logged in to add funds." };
     }
 
-    // First, get the current balance
+    // First, try to get the current balance
     const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('balance')
+        .select('balance, full_name')
         .eq('id', user.id)
         .single();
     
-    if (profileError || !profile) {
-        return { error: "Could not retrieve user profile." };
-    }
-
-    const newBalance = profile.balance + amount;
-
-    // Update the balance
-    const { error: updateError } = await supabase
+    // If profile exists, update it
+    if (profile) {
+      const newBalance = profile.balance + amount;
+      const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ balance: newBalance })
+          .eq('id', user.id);
+      
+      if (updateError) {
+          return { error: "Failed to update balance." };
+      }
+    } else {
+      // If profile does not exist, create it.
+      // This can happen for new users if the DB trigger hasn't run yet.
+      const { error: createError } = await supabase
         .from('profiles')
-        .update({ balance: newBalance })
-        .eq('id', user.id);
-    
-    if (updateError) {
-        return { error: "Failed to update balance." };
+        .insert({ id: user.id, balance: amount, full_name: user.user_metadata.full_name ?? 'New User' });
+      
+      if (createError) {
+        return { error: "Failed to create user profile." };
+      }
     }
 
-    // Create a transaction record
+
+    // Create a transaction record regardless of whether it was an update or insert
     const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
