@@ -3,35 +3,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Store, LayoutDashboard, User } from "lucide-react";
+import { Home, Store, LayoutDashboard, User, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/store", label: "Store", icon: Store },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/login", label: "Account", icon: User },
-];
+import { useAuth } from "@/hooks/use-auth";
 
 export function BottomNav() {
   const pathname = usePathname();
-  const isLoggedIn = false; // Replace with actual auth state
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
 
-  const navLinks = navItems.map(item => {
-      if (item.href === "/login" && isLoggedIn) {
-          return null;
-      }
-      if (item.href === "/dashboard" && !isLoggedIn) {
-          return null;
-      }
-      return item;
-  }).filter(Boolean);
-
+  const navItems = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/store", label: "Store", icon: Store },
+    isLoggedIn 
+      ? { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }
+      : { href: "/login", label: "Login", icon: LogIn },
+  ];
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t border-border">
-      <div className="grid h-full max-w-lg grid-cols-4 mx-auto font-medium">
-        {navLinks.map((item) => {
+      <div className={`grid h-full max-w-lg grid-cols-${navItems.length} mx-auto font-medium`}>
+        {navItems.map((item) => {
           if (!item) return null;
           const isActive = (item.href === "/" && pathname === item.href) || (item.href !== "/" && pathname.startsWith(item.href));
           return (

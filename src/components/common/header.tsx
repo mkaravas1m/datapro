@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { Package2, LogIn, UserPlus, Menu, ShoppingCart, LayoutDashboard, Zap, LogOut } from "lucide-react";
+import { Package2, LogIn, UserPlus, Menu, LayoutDashboard, Zap, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils";
@@ -128,7 +128,7 @@ export function Header({ user }: { user: any }) {
                             <>
                              <Link href={'/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-lg text-foreground/60 hover:text-foreground/80"><LayoutDashboard className="h-5 w-5" /> Dashboard</Link>
                              <form action={logout}>
-                                <button type="submit" className="flex items-center gap-2 py-2 text-lg text-foreground/60 hover:text-foreground/80"><LogOut className="h-5 w-5" /> Logout</button>
+                                <button type="submit" className="flex w-full items-center gap-2 py-2 text-lg text-foreground/60 hover:text-foreground/80"><LogOut className="h-5 w-5" /> Logout</button>
                              </form>
                             </>
                          )}
