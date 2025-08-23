@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Order, Transaction, Profile } from "@/lib/types";
-import { Download, ArrowUpRight, DollarSign, Loader2 } from "lucide-react";
+import { Download, ArrowUpRight, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { AddFundsDialog } from "@/components/dashboard/add-funds-dialog";
 import type { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useSearchParams, useRouter } from "next/navigation";
 
 
 interface DashboardClientContentProps {
@@ -22,42 +22,29 @@ interface DashboardClientContentProps {
     userBalance: number;
 }
 
-export function DashboardClientContent({ user, profile: initialProfile, orders: initialOrders, transactions: initialTransactions, userBalance: initialBalance }: DashboardClientContentProps) {
-  
-  const [profile, setProfile] = useState<Profile | null>(initialProfile);
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
-  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
-  const [userBalance, setUserBalance] = useState<number>(initialBalance);
+export function DashboardClientContent({ user, profile, orders, transactions, userBalance }: DashboardClientContentProps) {
+    const searchParams = useSearchParams();
+    const router = useRouter();
 
+    useEffect(() => {
+        // This effect runs when the user is redirected back from Stripe.
+        if (searchParams.get("payment") === "success") {
+            const interval = setInterval(() => {
+                // This will re-fetch data on the server by refreshing the page
+                router.refresh(); 
+            }, 2000); // Refresh every 2 seconds
 
-  useEffect(() => {
-      setProfile(initialProfile);
-      setOrders(initialOrders);
-      setTransactions(initialTransactions);
-      setUserBalance(initialBalance);
+            // Stop refreshing after 10 seconds
+            setTimeout(() => {
+                clearInterval(interval);
+                 // Clean up the URL
+                const newPath = window.location.pathname;
+                window.history.replaceState({...window.history.state, as: newPath, url: newPath}, '', newPath);
+            }, 10000); 
 
-      const supabase = createClient();
-      const channel = supabase.channel('db-changes-dashboard')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` }, 
-        async (payload) => {
-           const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-           if (profileData) {
-             setProfile(profileData);
-             setUserBalance(profileData.balance ?? 0);
-           }
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions', filter: `user_id=eq.${user.id}` }, 
-        async (payload) => {
-           const { data: transactionsData } = await supabase.from('transactions').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-           setTransactions(transactionsData || []);
-        })
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      }
-
-  }, [initialProfile, initialOrders, initialTransactions, initialBalance, user.id]);
+            return () => clearInterval(interval);
+        }
+    }, [searchParams, router]);
 
 
   return (

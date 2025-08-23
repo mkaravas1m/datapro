@@ -39,18 +39,23 @@ export async function POST(req: Request) {
     // Prevent duplicate transactions by checking for the stripe session id
     const supabase = createAdminClient();
     try {
-        const { data: existingTransaction } = await supabase
+        const { data: existingTransaction, error: checkError } = await supabase
             .from('transactions')
             .select('id')
             .eq('description', `Stripe payment: ${session.id}`)
             .maybeSingle();
+
+        if (checkError) {
+            console.error('❌ Webhook Error: Failed to check for existing transaction.', checkError);
+            // Decide if you should continue or not. For now, we will continue but log the error.
+        }
         
         if(existingTransaction) {
             console.log('✅ Webhook: Payment already processed for session:', session.id);
             return new NextResponse('OK - Already processed', { status: 200 });
         }
     } catch(error: any) {
-        console.error('❌ Webhook Error: Failed to check for existing transaction.', error);
+        console.error('❌ Webhook Error: Catastrophic failure during transaction check.', error);
         return new NextResponse('Internal Server Error', { status: 500 });
     }
 

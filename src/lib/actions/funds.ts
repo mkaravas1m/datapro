@@ -5,7 +5,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
 export async function addFunds(amount: number, userId: string, description: string = 'User-added funds') {
-    // Use the admin client to bypass RLS for all trusted server-side operations.
     const supabase = createAdminClient();
 
     if (!userId) {
@@ -13,70 +12,61 @@ export async function addFunds(amount: number, userId: string, description: stri
         console.error(`addFunds Error: ${errorMsg}`);
         return { error: errorMsg };
     }
+    console.log(`[addFunds] Starting for user: ${userId}, amount: ${amount}`);
 
-    // 1. Get the current balance
-    let currentBalance = 0;
-    try {
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('balance')
-            .eq('id', userId)
-            .single();
-        
-        if (profileError && profileError.code !== 'PGRST116') { // PGRST116 means "No rows found", which is okay for a new user.
-            throw profileError;
-        }
-
-        if (profile) {
-            currentBalance = profile.balance ?? 0;
-        }
-    } catch(error: any) {
-        const errorMsg = `Failed to retrieve user profile for user ${userId}.`;
-        console.error(`addFunds Error: ${errorMsg}`, error);
+    // 1. Get the user profile
+    const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', userId)
+        .single();
+    
+    if (profileError || !profile) {
+        const errorMsg = `Failed to retrieve user profile for user ${userId}. Does profile exist?`;
+        console.error(`[addFunds] Profile Error: ${errorMsg}`, profileError);
         return { error: errorMsg };
     }
 
+    console.log(`[addFunds] Found profile for user ${userId}. Current balance: ${profile.balance}`);
 
-    // 2. Update the balance
-    const newBalance = currentBalance + amount;
-    try {
-        const { error: upsertError } = await supabase
-            .from('profiles')
-            .upsert({ id: userId, balance: newBalance, updated_at: new Date().toISOString() });
+    // 2. Calculate new balance and update the profile
+    const newBalance = (profile.balance ?? 0) + amount;
+    const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ balance: newBalance, updated_at: new Date().toISOString() })
+        .eq('id', userId);
 
-        if (upsertError) {
-            throw upsertError;
-        }
-    } catch (error: any) {
+    if (updateError) {
         const errorMsg = `Failed to update balance for user ${userId}.`;
-        console.error(`addFunds Error: ${errorMsg}`, error);
+        console.error(`[addFunds] Update Error: ${errorMsg}`, updateError);
         return { error: errorMsg };
     }
+    
+    console.log(`[addFunds] Successfully updated balance for user ${userId} to ${newBalance}`);
 
     // 3. Create a transaction record
-    try {
-        const { error: transactionError } = await supabase
-            .from('transactions')
-            .insert({
-                user_id: userId,
-                amount: amount,
-                type: 'deposit',
-                description: description
-            });
+    const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+            user_id: userId,
+            amount: amount,
+            type: 'deposit',
+            description: description
+        });
 
-        if (transactionError) {
-            throw transactionError;
-        }
-    } catch (error: any) {
-        const errorMsg = `Failed to create transaction for user ${userId}.`;
-        console.error(`addFunds Error: ${errorMsg}`, error);
-        // Note: In a real-world app, you might want to roll back the balance update here.
+    if (transactionError) {
+        const errorMsg = `Failed to create transaction for user ${userId}. Balance was updated, but transaction log failed.`;
+        console.error(`[addFunds] Transaction Error: ${errorMsg}`, transactionError);
+        // Note: In a real-world app, you'd want to handle this inconsistency.
         return { error: errorMsg };
     }
 
-    console.log(`addFunds Success: Revalidating paths for user ${userId}.`);
+    console.log(`[addFunds] Successfully created transaction record for user ${userId}.`);
+
+    // 4. Revalidate paths to update cache
     revalidatePath('/dashboard');
     revalidatePath('/exclusive-leads');
 
-    return { error: null, success: true };
+    console.log(`[addFunds] Success: Revalidated paths for user ${userId}.`);
+    return { success: true, error: null };
 }
