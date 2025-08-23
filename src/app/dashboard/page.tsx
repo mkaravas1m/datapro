@@ -1,20 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Order, Transaction } from "@/lib/types";
 import { Download, ArrowUpRight, DollarSign, PlusCircle } from "lucide-react";
 import Link from "next/link";
 
 const mockOrders: Order[] = [
-  { id: "ORD001", fileId: "1", fileName: "USA B2B Company Leads", orderDate: "2023-06-23", amount: 499.99, status: 'paid', invoiceUrl: '#', downloadUrl: '#' },
-  { id: "ORD002", fileId: "3", fileName: "Top 10,000 Mobile Game Player Profiles", orderDate: "2023-05-15", amount: 250.00, status: 'paid', invoiceUrl: '#', downloadUrl: '#' },
+  { id: "ORD001", file_id: 1, file: { name: "USA B2B Company Leads" }, created_at: "2023-06-23", amount: 499.99, status: 'paid', user_id: '1' },
+  { id: "ORD002", file_id: 3, file: { name: "Top 10,000 Mobile Game Player Profiles" }, created_at: "2023-05-15", amount: 250.00, status: 'paid', user_id: '1' },
 ];
 
 const mockTransactions: Transaction[] = [
-    { id: 'TRN001', date: '2023-07-01', type: 'deposit', amount: 500, description: 'Stripe Deposit' },
-    { id: 'TRN002', date: '2023-07-05', type: 'debit', amount: -50, description: 'Purchase: 500 Exclusive Leads' },
-    { id: 'TRN003', date: '2023-07-10', type: 'deposit', amount: 200, description: 'Admin Credit' },
+    { id: 1, created_at: '2023-07-01', type: 'deposit', amount: 500, description: 'Stripe Deposit', user_id: '1' },
+    { id: 2, created_at: '2023-07-05', type: 'debit', amount: -50, description: 'Purchase: 500 Exclusive Leads', user_id: '1' },
+    { id: 3, created_at: '2023-07-10', type: 'deposit', amount: 200, description: 'Admin Credit', user_id: '1' },
 ];
 
 export default function DashboardPage() {
@@ -46,13 +46,13 @@ export default function DashboardPage() {
                   {mockOrders.map(order => (
                     <TableRow key={order.id}>
                       <TableCell>{order.id}</TableCell>
-                      <TableCell className="font-medium">{order.fileName}</TableCell>
-                      <TableCell>{order.orderDate}</TableCell>
+                      <TableCell className="font-medium">{order.file?.name}</TableCell>
+                      <TableCell>{order.created_at}</TableCell>
                       <TableCell>${order.amount.toFixed(2)}</TableCell>
                       <TableCell><Badge variant={order.status === 'paid' ? 'default' : 'destructive'}>{order.status}</Badge></TableCell>
                       <TableCell>
                         <Button variant="outline" size="sm" asChild>
-                          <a href={order.downloadUrl}>
+                          <a href="#">
                             <Download className="mr-2 h-4 w-4" />
                             Download
                           </a>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
                     <TableBody>
                         {mockTransactions.map((t) => (
                              <TableRow key={t.id}>
-                                <TableCell>{t.date}</TableCell>
+                                <TableCell>{t.created_at}</TableCell>
                                 <TableCell className="font-medium">{t.description}</TableCell>
                                 <TableCell>
                                     <Badge variant="outline" className={t.type === 'deposit' ? 'text-green-600 border-green-600' : 'text-red-600 border-red-600'}>
