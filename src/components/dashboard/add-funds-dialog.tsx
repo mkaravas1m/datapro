@@ -17,8 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlusCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { addFunds } from "@/lib/actions/funds";
 import { useAuth } from "@/hooks/use-auth";
+import { createCheckoutSession } from "@/lib/actions/stripe";
 
 export function AddFundsDialog() {
   const [open, setOpen] = useState(false);
@@ -40,22 +40,21 @@ export function AddFundsDialog() {
     }
 
     setIsPending(true);
-    const result = await addFunds(numericAmount);
-    setIsPending(false);
-
-    if (result.error) {
-      toast({
+    
+    try {
+      const { url, error } = await createCheckoutSession(numericAmount);
+      if (error || !url) {
+        throw new Error(error || "Failed to create checkout session.");
+      }
+      // Redirect to Stripe checkout
+      window.location.href = url;
+    } catch (error: any) {
+       toast({
         variant: "destructive",
-        title: "Error Adding Funds",
-        description: result.error,
+        title: "Error",
+        description: error.message || "Something went wrong.",
       });
-    } else {
-      toast({
-        title: "Success",
-        description: `$${numericAmount.toFixed(2)} has been added to your balance.`,
-      });
-      setOpen(false);
-      setAmount("");
+       setIsPending(false);
     }
   };
   
@@ -75,7 +74,7 @@ export function AddFundsDialog() {
           <DialogHeader>
             <DialogTitle>Add Funds to Your Balance</DialogTitle>
             <DialogDescription>
-              Enter the amount you would like to add. This is a simulation and no real payment will be processed.
+              Enter the amount you would like to add. You will be redirected to Stripe to complete the payment.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -90,7 +89,7 @@ export function AddFundsDialog() {
                 onChange={(e) => setAmount(e.target.value)}
                 className="col-span-3"
                 placeholder="e.g., 50.00"
-                min="0.01"
+                min="5"
                 step="0.01"
                 required
               />
@@ -98,13 +97,13 @@ export function AddFundsDialog() {
           </div>
           <DialogFooter>
              <DialogClose asChild>
-                <Button type="button" variant="secondary">
+                <Button type="button" variant="secondary" disabled={isPending}>
                     Cancel
                 </Button>
             </DialogClose>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending || !amount}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Add Funds
+              Proceed to Payment
             </Button>
           </DialogFooter>
         </form>

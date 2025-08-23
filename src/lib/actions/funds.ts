@@ -4,20 +4,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function addFunds(amount: number) {
+export async function addFunds(amount: number, userId: string, description: string = 'User-added funds') {
     const supabase = createClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-        return { error: "You must be logged in to add funds." };
+    // In a webhook context, we get the userId directly, so we don't need to fetch the user again.
+    if (!userId) {
+        return { error: "User ID is required to add funds." };
     }
 
     // First, try to get the current balance
     const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('balance, full_name')
-        .eq('id', user.id)
+        .select('balance')
+        .eq('id', userId)
         .single();
     
     // If profile exists, update it
@@ -26,17 +25,17 @@ export async function addFunds(amount: number) {
       const { error: updateError } = await supabase
           .from('profiles')
           .update({ balance: newBalance })
-          .eq('id', user.id);
+          .eq('id', userId);
       
       if (updateError) {
           return { error: "Failed to update balance." };
       }
     } else {
-      // If profile does not exist, create it.
-      // This can happen for new users if the DB trigger hasn't run yet.
+       // This case is less likely in the webhook flow if a profile is always created on sign-up,
+       // but it's good practice to handle it.
       const { error: createError } = await supabase
         .from('profiles')
-        .insert({ id: user.id, balance: amount, full_name: user.user_metadata.full_name ?? 'New User' });
+        .insert({ id: userId, balance: amount });
       
       if (createError) {
         return { error: "Failed to create user profile." };
@@ -44,14 +43,14 @@ export async function addFunds(amount: number) {
     }
 
 
-    // Create a transaction record regardless of whether it was an update or insert
+    // Create a transaction record
     const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
-            user_id: user.id,
+            user_id: userId,
             amount: amount,
             type: 'deposit',
-            description: 'User-added funds'
+            description: description
         });
 
     if (transactionError) {
