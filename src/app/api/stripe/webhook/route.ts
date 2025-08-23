@@ -17,40 +17,54 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
-    console.error(`❌ Error message: ${err.message}`);
+    console.error(`❌ Webhook signature verification failed: ${err.message}`);
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
+    console.log('✅ Webhook: Received checkout.session.completed event for session:', session.id);
+
 
     const userId = session?.metadata?.userId;
     const amountStr = session?.metadata?.amount;
     
     if (!userId || !amountStr) {
+      console.error('❌ Webhook Error: Missing userId or amount in metadata for session:', session.id);
       return new NextResponse('Webhook Error: Missing metadata', { status: 400 });
     }
-
+    
     const amount = parseFloat(amountStr);
 
     // Prevent duplicate transactions by checking for the stripe session id
-     const supabase = createAdminClient();
-     const { data: existingTransaction } = await supabase
-         .from('transactions')
-         .select('id')
-         .eq('description', `Stripe payment: ${session.id}`)
-         .maybeSingle();
-    
-    if(existingTransaction) {
-        console.log('✅ Webhook: Payment already processed.');
-        return new NextResponse('OK', { status: 200 });
+    const supabase = createAdminClient();
+    try {
+        const { data: existingTransaction } = await supabase
+            .from('transactions')
+            .select('id')
+            .eq('description', `Stripe payment: ${session.id}`)
+            .maybeSingle();
+        
+        if(existingTransaction) {
+            console.log('✅ Webhook: Payment already processed for session:', session.id);
+            return new NextResponse('OK - Already processed', { status: 200 });
+        }
+    } catch(error: any) {
+        console.error('❌ Webhook Error: Failed to check for existing transaction.', error);
+        return new NextResponse('Internal Server Error', { status: 500 });
     }
 
+
     try {
-        await addFunds(amount, userId, `Stripe payment: ${session.id}`);
-        console.log(`✅ Successfully added $${amount} to user ${userId}`);
+        console.log(`⏳ Webhook: Attempting to add funds for user ${userId}, amount ${amount}`);
+        const result = await addFunds(amount, userId, `Stripe payment: ${session.id}`);
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        console.log(`✅ Webhook: Successfully added $${amount} to user ${userId} for session ${session.id}`);
     } catch(error: any) {
-        console.error('Failed to update user balance via webhook:', error);
+        console.error(`❌ Webhook Error: Failed to update user balance for session ${session.id}. Error:`, error.message);
+        // In a production app, you might want to send an alert here.
         return new NextResponse('Webhook handler failed.', { status: 500 });
     }
   }
