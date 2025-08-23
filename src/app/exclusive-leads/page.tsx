@@ -10,17 +10,16 @@ export default async function ExclusiveLeadsPage() {
     const supabase = createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        redirect("/login");
-    }
 
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-    
-    const { balance: userBalance = 0 }: Profile = profile || { balance: 0 };
+    let userBalance: number | null = null;
+    if (user) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+        userBalance = profile?.balance ?? 0;
+    }
 
     const { data: leadBatchesData } = await supabase
         .from('exclusive_lead_batches')
@@ -40,21 +39,23 @@ export default async function ExclusiveLeadsPage() {
 
             <section className="grid grid-cols-1 gap-8 mt-12 md:grid-cols-3">
                 <div className="md:col-span-1">
-                    <Card className="sticky top-24">
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle>Your Balance</CardTitle>
-                             <DollarSign className="w-6 h-6 text-primary" />
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-5xl font-bold tracking-tight">${userBalance.toFixed(2)}</p>
-                            <p className="text-sm text-muted-foreground">Available for lead purchases</p>
-                        </CardContent>
-                        <CardFooter>
-                            <Button className="w-full">
-                                <PlusCircle className="mr-2" /> Add Funds
-                            </Button>
-                        </CardFooter>
-                    </Card>
+                    {user && userBalance !== null && (
+                        <Card className="sticky top-24">
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <CardTitle>Your Balance</CardTitle>
+                                 <DollarSign className="w-6 h-6 text-primary" />
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-5xl font-bold tracking-tight">${userBalance.toFixed(2)}</p>
+                                <p className="text-sm text-muted-foreground">Available for lead purchases</p>
+                            </CardContent>
+                            <CardFooter>
+                                <Button className="w-full">
+                                    <PlusCircle className="mr-2" /> Add Funds
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    )}
                 </div>
                 <div className="md:col-span-2">
                     <h2 className="pb-4 text-2xl font-bold tracking-tight border-b">Available Lead Campaigns</h2>
