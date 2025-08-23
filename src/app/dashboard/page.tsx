@@ -10,7 +10,7 @@ import { Download, ArrowUpRight, DollarSign, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { AddFundsDialog } from "@/components/dashboard/add-funds-dialog";
 import { useAuth } from "@/hooks/use-auth";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
@@ -61,10 +61,14 @@ export default function DashboardPage() {
       };
       fetchData();
 
-      // Listen for database changes
+      // Listen for database changes to update the UI in real-time
       const channel = supabase.channel('db-changes')
-        .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
-           console.log('Change received!', payload)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
+           console.log('Profile change received!', payload)
+           fetchData();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload) => {
+           console.log('Transaction change received!', payload)
            fetchData();
         })
         .subscribe()
@@ -259,4 +263,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-  )
+  );
+}

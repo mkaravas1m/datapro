@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
     const amount = parseFloat(amountStr);
 
-    // Prevent duplicate transactions
+    // Prevent duplicate transactions by checking for the stripe session id
      const supabase = createClient();
      const { data: existingTransaction } = await supabase
          .from('transactions')

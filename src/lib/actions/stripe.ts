@@ -1,14 +1,9 @@
 
 "use server"
 
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import Stripe from "stripe";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { addFunds } from "./funds";
-import { revalidatePath } from "next/cache";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function createCheckoutSession(amount: number) {
     const supabase = createClient();
@@ -23,6 +18,7 @@ export async function createCheckoutSession(amount: number) {
     }
 
     const origin = headers().get('origin')!;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
     try {
         const session = await stripe.checkout.sessions.create({
