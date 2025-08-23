@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/common/header';
 import { Footer } from '@/components/common/footer';
+import { BottomNav } from '@/components/common/bottom-nav';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -28,8 +29,9 @@ export default function RootLayout({
       <body className={cn('min-h-screen bg-background font-sans antialiased dark', inter.variable)}>
         <div className="relative flex min-h-screen flex-col">
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 pb-20 md:pb-0">{children}</main>
           <Footer />
+          <BottomNav />
         </div>
         <Toaster />
       </body>
