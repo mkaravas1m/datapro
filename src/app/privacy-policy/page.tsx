@@ -1,7 +1,7 @@
 export default function PrivacyPolicyPage() {
     return (
         <div className="container py-12">
-            <article className="prose prose-invert mx-auto">
+            <article className="prose dark:prose-invert mx-auto">
                 <h1>Privacy Policy</h1>
                 <p>Last updated: {new Date().toLocaleDateString()}</p>
                 

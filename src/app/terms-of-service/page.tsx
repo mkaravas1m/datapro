@@ -1,7 +1,7 @@
 export default function TermsOfServicePage() {
     return (
         <div className="container py-12">
-            <article className="prose prose-invert mx-auto">
+            <article className="prose dark:prose-invert mx-auto">
                 <h1>Terms of Service</h1>
                 <p>Welcome to DataSalesPro. These terms and conditions outline the rules and regulations for the use of DataSalesPro's Website.</p>
 
