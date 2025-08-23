@@ -1,3 +1,5 @@
+import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Zap, PlusCircle, ArrowRight } from "lucide-react";
@@ -12,7 +14,12 @@ const mockLeadBatches: ExclusiveLeadBatch[] = [
 ];
 
 
-export default function ExclusiveLeadsPage() {
+export default async function ExclusiveLeadsPage() {
+    const session = await auth();
+    if (!session) {
+        redirect('/login');
+    }
+
     const userBalance = 750.50; // Mock data
 
     return (
