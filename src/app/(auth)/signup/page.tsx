@@ -15,8 +15,8 @@ import Link from "next/link"
 
 export default function SignupPage() {
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-14rem)] py-12">
-      <Card className="w-full max-w-sm">
+    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] py-12">
+      <Card className="w-full max-w-sm bg-secondary/50 border-white/10">
         <CardHeader>
           <CardTitle className="text-2xl">Sign Up</CardTitle>
           <CardDescription>

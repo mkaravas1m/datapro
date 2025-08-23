@@ -1,300 +1,220 @@
-import { FileCard } from "@/components/store/file-card";
-import type { CsvFile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Search, HandCoins, Download, Briefcase, BarChart, Mail, Building, ShieldCheck, FileCheck2, BadgePercent, Clock, AreaChart, Users, TrendingUp } from "lucide-react";
+import { ArrowRight, Zap, BookOpen, Settings2, Share2, MessageSquare, Star, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-const mockFiles: CsvFile[] = [
-  {
-    id: "1",
-    name: "USA B2B Company Leads",
-    description: "A comprehensive list of over 50,000 B2B companies in the United States, including contact information, industry, and revenue.",
-    category: "Business",
-    rowCount: 50000,
-    price: 499.99,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "2",
-    name: "Global E-commerce Transactions Q1 2024",
-    description: "Anonymized transaction data from e-commerce platforms worldwide for the first quarter of 2024. Ideal for market analysis.",
-    category: "Finance",
-    rowCount: 1200000,
-    price: 1299.00,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "3",
-    name: "Top 10,000 Mobile Game Player Profiles",
-    description: "Demographic and engagement data for top mobile game players. Includes preferred genres, session length, and IAP history.",
-    category: "Gaming",
-    rowCount: 10000,
-    price: 250.00,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "4",
-    name: "Real Estate Listings - California (Jan 2024)",
-    description: "Detailed property listings from across California for January 2024. Contains prices, locations, square footage, and more.",
-    category: "Real Estate",
-    rowCount: 85000,
-    price: 600.00,
-    status: "available",
-    sample: [],
-  },
-    {
-    id: "5",
-    name: "Startup Funding Rounds 2023",
-    description: "A dataset of venture capital funding rounds for tech startups throughout 2023. Includes company, investors, and round size.",
-    category: "Technology",
-    rowCount: 15000,
-    price: 350.00,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "6",
-    name: "Healthcare Professional Directory",
-    description: "Contact and specialization data for over 100,000 healthcare professionals in North America. Verified and updated monthly.",
-    category: "Healthcare",
-    rowCount: 100000,
-    price: 950.00,
-    status: "available",
-    sample: [],
-  },
-];
-
-
-const HowItWorksStep = ({ icon, title, description }: { icon: React.ElementType, title: string, description: string }) => {
+const FeatureCard = ({ icon, title, description }: { icon: React.ElementType, title: string, description: string }) => {
   const Icon = icon;
   return (
-    <div className="flex flex-col items-center text-center">
-      <div className="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-primary/10 text-primary">
-        <Icon className="w-8 h-8" />
-      </div>
-      <h3 className="mb-2 text-xl font-bold">{title}</h3>
-      <p className="text-muted-foreground">{description}</p>
-    </div>
+    <Card className="bg-secondary/50 border-white/10">
+      <CardHeader className="flex flex-row items-center gap-4">
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
+          <Icon className="w-6 h-6" />
+        </div>
+        <CardTitle className="text-xl">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
   );
 };
 
-const WhyChooseUsItem = ({ icon, title, description }: { icon: React.ElementType, title: string, description: string }) => {
-    const Icon = icon;
-    return (
-      <div className="flex items-start space-x-4">
-        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary flex-shrink-0">
-          <Icon className="w-6 h-6" />
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <p className="text-muted-foreground">{description}</p>
-        </div>
-      </div>
-    );
-};
+const HowItWorksStep = ({ step, title, description }: { step: string, title: string, description: string }) => (
+  <div className="flex items-start space-x-4">
+    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-foreground font-bold text-xl flex-shrink-0">
+      {step}
+    </div>
+    <div>
+      <h3 className="text-xl font-semibold">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
+    </div>
+  </div>
+);
 
-const CategoryCard = ({ icon, name }: { icon: React.ElementType, name: string }) => {
-  const Icon = icon;
-  return (
-    <Link href="#">
-      <Card className="group transition-all duration-300 hover:bg-primary/5 hover:shadow-lg">
-        <CardContent className="p-6 flex flex-col items-center text-center">
-            <div className="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-muted group-hover:bg-primary/10 text-muted-foreground group-hover:text-primary transition-colors">
-                <Icon className="w-8 h-8" />
-            </div>
-            <h3 className="text-lg font-semibold">{name}</h3>
-        </CardContent>
-      </Card>
-    </Link>
-  )
-}
+const TestimonialCard = ({ name, role, avatar, text }: { name: string, role: string, avatar: string, text: string }) => (
+  <Card className="bg-secondary/50 border-white/10 h-full flex flex-col">
+    <CardContent className="p-6 flex-grow flex flex-col">
+        <div className="flex-grow">
+          <div className="flex items-center mb-2">
+            {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 text-accent fill-accent" />)}
+          </div>
+          <p className="text-muted-foreground italic">"{text}"</p>
+        </div>
+        <div className="flex items-center mt-6">
+          <Avatar>
+            <AvatarImage src={avatar} alt={name} data-ai-hint="person" />
+            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="ml-4">
+            <p className="font-semibold">{name}</p>
+            <p className="text-sm text-muted-foreground">{role}</p>
+          </div>
+        </div>
+    </CardContent>
+  </Card>
+);
+
+const PricingCard = ({ title, price, features, popular }: { title: string, price: string, features: string[], popular?: boolean }) => (
+  <Card className={`relative ${popular ? 'border-primary ring-2 ring-primary' : 'bg-secondary/50 border-white/10'}`}>
+     {popular && <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-3 py-1 text-sm font-semibold text-primary-foreground bg-primary rounded-full">Most Popular</div>}
+    <CardHeader>
+      <CardTitle>{title}</CardTitle>
+      <CardDescription className="text-4xl font-bold">{price}<span className="text-lg font-normal text-muted-foreground">/month</span></CardDescription>
+    </CardHeader>
+    <CardContent className="space-y-4">
+      <ul className="space-y-2">
+        {features.map((feature, i) => (
+          <li key={i} className="flex items-center gap-2">
+            <CheckCircle className="h-4 w-4 text-green-500" />
+            <span className="text-muted-foreground">{feature}</span>
+          </li>
+        ))}
+      </ul>
+      <Button className="w-full" variant={popular ? 'default' : 'outline'}>Get Started</Button>
+    </CardContent>
+  </Card>
+);
 
 export default function Home() {
-  const availableFiles = mockFiles.filter(f => f.status === 'available').slice(0, 3);
-  const searchCategories = [
-    { name: "Business", icon: Briefcase },
-    { name: "eCommerce", icon: BarChart },
-    { name: "Email Lists", icon: Mail },
-    { name: "Health", icon: Download },
-    { name: "Property Records", icon: Building },
-  ];
-
-   const browseCategories = [
-    { name: "Financial Data", icon: BarChart },
-    { name: "B2B Contact Lists", icon: Users },
-    { name: "Real Estate", icon: Building },
-    { name: "Company Data", icon: Briefcase },
-    { name: "Public Records", icon: FileCheck2 },
-    { name: "eCommerce Trends", icon: TrendingUp },
-    { name: "Demographics", icon: AreaChart },
-    { name: "Healthcare", icon: Mail },
-  ];
-
   return (
-    <>
-      <section className="py-12 md:py-20 text-center animate-fade-in">
+    <div className="w-full">
+      <div className="absolute inset-0 -z-10 h-full w-full bg-background bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
+      <div className="absolute top-0 left-0 -z-10 h-96 w-96 glow-effect"></div>
+      <div className="absolute bottom-0 right-0 -z-10 h-96 w-96 glow-effect"></div>
+      
+      <section className="py-20 md:py-32 text-center animate-fade-in">
         <div className="container">
-          <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl">
-            Data Delivery
+          <h1 className="text-4xl font-black tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
+            Create captivating stories in seconds with AI
           </h1>
-          <p className="max-w-2xl mx-auto mt-4 text-lg text-muted-foreground">
-            The easiest way to buy and sell data.
+          <p className="max-w-3xl mx-auto mt-6 text-lg text-muted-foreground md:text-xl">
+            Our advanced AI-powered story generator helps you craft unique and engaging narratives for any genre. Whether you're a writer, marketer, or educator, unlock your creativity and bring your ideas to life.
           </p>
-          <div className="max-w-xl mx-auto mt-8">
-            <div className="flex w-full items-center space-x-2">
-              <Input type="text" placeholder="Search for datasets..." className="flex-1" />
-              <Button type="submit" size="lg">
-                <Search className="h-5 w-5" />
-                <span className="hidden sm:inline ml-2">Search</span>
-              </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+            <Button size="lg" asChild>
+              <Link href="#">Get Started for Free <ArrowRight className="ml-2" /></Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link href="#">Watch Demo</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12 md:py-24 bg-secondary/30 animate-fade-in [animation-delay:200ms]">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Features</h2>
+            <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">
+              Everything you need to supercharge your storytelling.
+            </p>
+          </div>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <FeatureCard icon={Zap} title="AI-Powered Creativity" description="Generate unique story ideas, characters, and plot twists with our advanced AI." />
+            <FeatureCard icon={BookOpen} title="Multiple Genres" description="From fantasy and sci-fi to mystery and romance, we've got you covered." />
+            <FeatureCard icon={Settings2} title="Customizable Output" description="Control the tone, style, and length of your stories to match your vision." />
+            <FeatureCard icon={Share2} title="Export & Share" description="Easily export your stories in various formats or share them with your audience." />
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12 md:py-24 animate-fade-in [animation-delay:400ms]">
+        <div className="container">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">How It Works</h2>
+              <p className="mt-3 text-muted-foreground text-lg">A simple, intuitive process to bring your stories to life.</p>
+              <div className="mt-8 space-y-8">
+                <HowItWorksStep step="1" title="Enter Your Prompt" description="Provide a simple idea, a few keywords, or a detailed outline to get started." />
+                <HowItWorksStep step="2" title="Customize Settings" description="Choose the genre, tone, length, and other parameters to guide the AI." />
+                <HowItWorksStep step="3" title="Generate Story" description="Let our AI work its magic and create a unique story based on your input." />
+                <HowItWorksStep step="4" title="Edit & Export" description="Refine the generated story with our built-in editor and export it in your desired format." />
+              </div>
             </div>
-            <div className="flex flex-wrap justify-center gap-x-2 gap-y-2 mt-4">
-              {searchCategories.map((category) => (
-                <Button key={category.name} variant="ghost" className="text-muted-foreground text-xs sm:text-sm" asChild>
-                  <Link href="#">
-                    <category.icon className="mr-2 h-4 w-4" />
-                    {category.name}
-                  </Link>
-                </Button>
-              ))}
+            <div>
+              <img src="https://placehold.co/600x600.png" alt="How it works illustration" data-ai-hint="workflow diagram" className="rounded-lg shadow-2xl" />
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-12 md:py-20 bg-muted animate-fade-in [animation-delay:200ms]">
+      <section className="py-12 md:py-24 bg-secondary/30 animate-fade-in [animation-delay:600ms]">
         <div className="container">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">How It Works</h2>
-            <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">
-              A simple, straightforward process to get the data you need.
-            </p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">What Our Users Say</h2>
           </div>
-          <div className="grid gap-12 md:grid-cols-3">
-            <HowItWorksStep 
-              icon={Search} 
-              title="Browse"
-              description="Explore our marketplace of high-quality, verified datasets across various categories."
-            />
-            <HowItWorksStep 
-              icon={HandCoins}
-              title="Purchase"
-              description="Securely buy the data you need with a one-time payment. No subscriptions, no hidden fees."
-            />
-            <HowItWorksStep 
-              icon={Download}
-              title="Download"
-              description="Instantly receive a download link for your purchased CSV file. It's that simple."
-            />
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <TestimonialCard name="Alex Johnson" role="Novelist" avatar="https://placehold.co/100x100.png" text="This tool is a game-changer for writer's block. I've generated some of my most creative ideas using this platform." />
+            <TestimonialCard name="Samantha Lee" role="Marketing Manager" avatar="https://placehold.co/100x100.png" text="We use the AI Story Generator for our social media campaigns. The engagement has been incredible. Highly recommended!" />
+            <TestimonialCard name="David Chen" role="Teacher" avatar="https://placehold.co/100x100.png" text="My students love creating stories with this tool. It's a fantastic way to get them excited about creative writing." />
           </div>
         </div>
       </section>
       
-      <section className="py-12 md:py-20 animate-fade-in [animation-delay:400ms]">
+      <section className="py-12 md:py-24 animate-fade-in [animation-delay:800ms]">
         <div className="container">
-           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Featured Datasets</h2>
-            <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">
-              Check out some of the most popular datasets available right now.
-            </p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Pricing</h2>
+            <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">Choose a plan that's right for you.</p>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {availableFiles.map((file) => (
-              <FileCard key={file.id} file={file} />
-            ))}
-          </div>
-          <div className="mt-12 text-center">
-             <Button variant="outline" asChild size="lg">
-                <Link href="/shop">
-                  View All Datasets <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+          <div className="grid gap-8 md:grid-cols-3 items-start">
+            <PricingCard title="Starter" price="$9" features={["10,000 words/month", "Basic genre selection", "Standard support"]} />
+            <PricingCard title="Pro" price="$29" features={["50,000 words/month", "All genres", "Advanced customization", "Priority support"]} popular />
+            <PricingCard title="Team" price="$79" features={["200,000 words/month", "Collaborative features", "API access", "Dedicated support"]} />
           </div>
         </div>
       </section>
 
-      <section className="py-12 md:py-20 bg-muted animate-fade-in [animation-delay:600ms]">
-        <div className="container">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Browse by Category</h2>
-            <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">
-              Find the specific data you need by exploring our categories.
-            </p>
+      <section className="py-12 md:py-24 bg-secondary/30 animate-fade-in [animation-delay:1000ms]">
+        <div className="container max-w-3xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Frequently Asked Questions</h2>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {browseCategories.map((category) => (
-                <CategoryCard key={category.name} icon={category.icon} name={category.name} />
-            ))}
-          </div>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>Is there a free trial?</AccordionTrigger>
+              <AccordionContent>
+                Yes, we offer a free plan with limited features so you can try out our AI Story Generator before committing.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-2">
+              <AccordionTrigger>What genres can I write in?</AccordionTrigger>
+              <AccordionContent>
+                Our AI supports a wide range of genres, including fantasy, science fiction, mystery, romance, horror, and more.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-3">
+              <AccordionTrigger>Can I use the generated stories commercially?</AccordionTrigger>
+              <AccordionContent>
+                Yes, with any of our paid plans, you have full commercial rights to the stories you create.
+              </AccordionContent>
+            </AccordionItem>
+             <AccordionItem value="item-4">
+              <AccordionTrigger>How do I cancel my subscription?</AccordionTrigger>
+              <AccordionContent>
+                You can cancel your subscription at any time from your account dashboard. No questions asked.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </section>
 
-      <section className="py-12 md:py-20 animate-fade-in [animation-delay:800ms]">
-        <div className="container">
-            <div className="grid items-center gap-12 lg:grid-cols-2">
-                <div className="space-y-4">
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Why Choose Us?</h2>
-                    <p className="text-muted-foreground text-lg">
-                        We provide high-quality, reliable data with a focus on simplicity and security.
-                    </p>
-                     <div className="space-y-8 pt-4">
-                        <WhyChooseUsItem 
-                            icon={ShieldCheck}
-                            title="Verified Data"
-                            description="Every dataset is manually verified to ensure accuracy and quality. No more guessing games."
-                        />
-                        <WhyChooseUsItem 
-                            icon={FileCheck2}
-                            title="Simple & Transparent"
-                            description="One-time payments for the data you need. No subscriptions or hidden fees. Ever."
-                        />
-                        <WhyChooseUsItem 
-                            icon={BadgePercent}
-                            title="Exclusive Leads"
-                            description="Purchase exclusive, high-intent leads that are sold only once, giving you a competitive edge."
-                        />
-                         <WhyChooseUsItem 
-                            icon={Clock}
-                            title="Instant Access"
-                            description="Get immediate access to your purchased data. No waiting, no delays. Download your files right away."
-                        />
-                    </div>
-                </div>
-                <div className="hidden lg:block">
-                  <img
-                      alt="Data analysis illustration"
-                      className="mx-auto aspect-square overflow-hidden rounded-xl object-cover"
-                      data-ai-hint="data analysis"
-                      height="550"
-                      src="https://placehold.co/550x550.png"
-                      width="550"
-                  />
-                </div>
-            </div>
-        </div>
-      </section>
-
-       <section className="py-12 md:py-20 bg-muted animate-fade-in [animation-delay:1000ms]">
+       <section className="py-12 md:py-24 animate-fade-in [animation-delay:1200ms]">
         <div className="container text-center">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Ready to Get Started?</h2>
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Get started today.</h2>
           <p className="max-w-xl mx-auto mt-3 text-lg text-muted-foreground">
-            Explore our datasets or sign up today to access exclusive leads.
+            Unlock your creative potential and start writing amazing stories with the power of AI.
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" asChild className="w-full sm:w-auto">
-              <Link href="/shop">Browse Datasets</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
-               <Link href="/signup">Create an Account</Link>
+          <div className="mt-8">
+            <Button size="lg" asChild>
+              <Link href="#">Sign Up Now <ArrowRight className="ml-2" /></Link>
             </Button>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
