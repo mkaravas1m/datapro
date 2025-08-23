@@ -5,30 +5,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { Order, Transaction, Profile, CsvFile } from "@/lib/types";
+import type { Order, Transaction, Profile } from "@/lib/types";
 import { Download, ArrowUpRight, DollarSign, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { AddFundsDialog } from "@/components/dashboard/add-funds-dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { verifyPaymentAndUpdateBalance } from "@/lib/actions/stripe";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Terminal } from "lucide-react";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { toast } = useToast();
   
   const [orders, setOrders] = useState<Order[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isVerifying, startTransition] = useTransition();
 
   useEffect(() => {
     if (!user) {
@@ -36,28 +30,6 @@ export default function DashboardPage() {
     }
   }, [user, router]);
 
-  useEffect(() => {
-    const sessionId = searchParams.get("session_id");
-    if (sessionId) {
-      startTransition(async () => {
-        const result = await verifyPaymentAndUpdateBalance(sessionId);
-        if (result.error) {
-          toast({
-            variant: "destructive",
-            title: "Payment Verification Failed",
-            description: result.error,
-          });
-        } else if (result.success) {
-           toast({
-            title: "Payment Successful!",
-            description: "Your balance has been updated.",
-          });
-          // Remove query params from URL
-          router.replace('/dashboard', { scroll: false });
-        }
-      });
-    }
-  }, [searchParams, router, toast]);
 
   useEffect(() => {
     if (user) {
@@ -88,10 +60,23 @@ export default function DashboardPage() {
         setLoading(false);
       };
       fetchData();
+
+      // Listen for database changes
+      const channel = supabase.channel('db-changes')
+        .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
+           console.log('Change received!', payload)
+           fetchData();
+        })
+        .subscribe()
+
+      return () => {
+        supabase.removeChannel(channel);
+      }
+
     } else {
         setLoading(false);
     }
-  }, [user, isVerifying]); // Rerun when payment is being verified
+  }, [user]);
 
   if (loading || !user) {
     return (
@@ -106,15 +91,6 @@ export default function DashboardPage() {
   return (
     <div className="container py-8">
       <h1 className="text-3xl font-bold mb-8">My Dashboard</h1>
-      {isVerifying && (
-         <Alert className="mb-4 bg-primary/10 border-primary/50">
-            <Terminal className="h-4 w-4" />
-            <AlertTitle>Verifying Payment</AlertTitle>
-            <AlertDescription>
-                Please wait while we confirm your transaction and update your balance. This may take a moment.
-            </AlertDescription>
-        </Alert>
-      )}
 
       <div className="grid gap-8">
         <div className="grid gap-8 lg:grid-cols-3">
@@ -284,4 +260,3 @@ export default function DashboardPage() {
       </div>
     </div>
   )
-}

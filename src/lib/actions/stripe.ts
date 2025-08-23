@@ -8,6 +8,8 @@ import { createClient } from "@/lib/supabase/server";
 import { addFunds } from "./funds";
 import { revalidatePath } from "next/cache";
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
 export async function createCheckoutSession(amount: number) {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -21,7 +23,6 @@ export async function createCheckoutSession(amount: number) {
     }
 
     const origin = headers().get('origin')!;
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
     try {
         const session = await stripe.checkout.sessions.create({
@@ -34,13 +35,13 @@ export async function createCheckoutSession(amount: number) {
                             name: 'DataSalesPro Balance Top-up',
                             description: `Add $${amount.toFixed(2)} to your account balance.`,
                         },
-                        unit_amount: Math.round(amount * 100), // Amount in cents, rounded to avoid floating point issues
+                        unit_amount: Math.round(amount * 100),
                     },
                     quantity: 1,
                 },
             ],
             mode: 'payment',
-            success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${origin}/dashboard?payment=success`,
             cancel_url: `${origin}/dashboard?payment=cancelled`,
             metadata: {
                 userId: user.id,
@@ -52,60 +53,5 @@ export async function createCheckoutSession(amount: number) {
     } catch (error: any) {
         console.error("Error creating Stripe session: ", error.message);
         return { error: "Could not create checkout session.", url: null };
-    }
-}
-
-export async function verifyPaymentAndUpdateBalance(sessionId: string) {
-    if (!sessionId) {
-        return { error: "Session ID is required." };
-    }
-    
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
-    try {
-        const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-        if (session.payment_status === 'paid') {
-            const userId = session.metadata?.userId;
-            const amountStr = session.metadata?.amount;
-
-            if (!userId || !amountStr) {
-                return { error: "Missing metadata in Stripe session." };
-            }
-            const amount = parseFloat(amountStr);
-
-            // Check if this transaction has already been processed
-            const supabase = createClient();
-            const { data: existingTransaction, error: transactionCheckError } = await supabase
-                .from('transactions')
-                .select('id')
-                .eq('description', `Stripe payment: ${session.id}`)
-                .single();
-
-            if (transactionCheckError && transactionCheckError.code !== 'PGRST116') { // Ignore "No rows found" error
-                 console.error("Error checking for existing transaction:", transactionCheckError);
-                 return { error: "Failed to verify transaction." };
-            }
-
-            if (existingTransaction) {
-                revalidatePath('/dashboard');
-                return { success: true, message: "Payment already processed." };
-            }
-
-            // Fulfill the purchase...
-            const result = await addFunds(amount, userId, `Stripe payment: ${session.id}`);
-
-            if (result.error) {
-                return { error: `Failed to add funds: ${result.error}` };
-            }
-            
-            revalidatePath('/dashboard');
-            return { success: true };
-        } else {
-            return { error: "Payment not successful." };
-        }
-    } catch (error: any) {
-        console.error("Error verifying Stripe session:", error.message);
-        return { error: "Failed to verify payment." };
     }
 }
