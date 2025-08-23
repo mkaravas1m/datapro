@@ -17,7 +17,7 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const { data: orders } = await supabase
+  const { data: ordersData } = await supabase
     .from('orders')
     .select(`
       *,
@@ -25,6 +25,7 @@ export default async function DashboardPage() {
     `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
+  const orders: Order[] = ordersData || [];
 
   const { data: transactions } = await supabase
     .from('transactions')
@@ -38,8 +39,7 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single();
 
-  const userBalance = profile?.balance ?? 0;
-  const userProfile: Profile | null = profile;
+  const { balance: userBalance = 0, ...userProfile }: Profile = profile || { balance: 0 };
 
   return (
     <div className="container py-8">
@@ -52,23 +52,24 @@ export default async function DashboardPage() {
               <CardDescription>View your past purchases and download files.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
+              {/* Desktop Table */}
+              <Table className="hidden md:table">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Order ID</TableHead>
+                    <TableHead className="hidden sm:table-cell">Order ID</TableHead>
                     <TableHead>File Name</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead className="hidden sm:table-cell">Date</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(orders as Order[] || []).map(order => (
+                  {orders.map(order => (
                     <TableRow key={order.id}>
-                      <TableCell>{order.id}</TableCell>
-                      <TableCell className="font-medium">{order.file?.name}</TableCell>
-                      <TableCell>{new Date(order.created_at || '').toLocaleDateString()}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{order.id}</TableCell>
+                      <TableCell className="font-medium">{order.file?.name ?? 'N/A'}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{new Date(order.created_at || '').toLocaleDateString()}</TableCell>
                       <TableCell>${order.amount.toFixed(2)}</TableCell>
                       <TableCell><Badge variant={order.status === 'paid' ? 'default' : 'destructive'}>{order.status}</Badge></TableCell>
                       <TableCell>
@@ -83,6 +84,31 @@ export default async function DashboardPage() {
                   ))}
                 </TableBody>
               </Table>
+              {/* Mobile Card List */}
+              <div className="grid gap-4 md:hidden">
+                {orders.map(order => (
+                  <Card key={order.id} className="bg-secondary/50">
+                     <CardHeader>
+                       <CardTitle className="text-lg">{order.file?.name ?? 'N/A'}</CardTitle>
+                       <CardDescription>
+                          Order #{order.id} - {new Date(order.created_at || '').toLocaleDateString()}
+                       </CardDescription>
+                     </CardHeader>
+                     <CardContent className="flex items-center justify-between">
+                        <div>
+                          <p className="text-2xl font-bold">${order.amount.toFixed(2)}</p>
+                          <Badge variant={order.status === 'paid' ? 'default' : 'destructive'}>{order.status}</Badge>
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                          <a href="#">
+                            <Download className="mr-2 h-4 w-4" />
+                            Download
+                          </a>
+                        </Button>
+                     </CardContent>
+                  </Card>
+                ))}
+              </div>
             </CardContent>
           </Card>
 
@@ -105,7 +131,7 @@ export default async function DashboardPage() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Date</TableHead>
+                            <TableHead className="hidden sm:table-cell">Date</TableHead>
                             <TableHead>Description</TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead className="text-right">Amount</TableHead>
@@ -114,7 +140,7 @@ export default async function DashboardPage() {
                     <TableBody>
                         {(transactions || []).map((t) => (
                              <TableRow key={t.id}>
-                                <TableCell>{new Date(t.created_at || '').toLocaleDateString()}</TableCell>
+                                <TableCell className="hidden sm:table-cell">{new Date(t.created_at || '').toLocaleDateString()}</TableCell>
                                 <TableCell className="font-medium">{t.description}</TableCell>
                                 <TableCell>
                                     <Badge variant="outline" className={t.type === 'deposit' ? 'text-green-600 border-green-600' : 'text-red-600 border-red-600'}>
