@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import type { Order, Transaction, Profile } from "@/lib/types";
 import { DashboardClientContent } from "@/components/dashboard/dashboard-client-content";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
