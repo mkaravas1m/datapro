@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/common/header';
 import { Footer } from '@/components/common/footer';
 import { BottomNav } from '@/components/common/bottom-nav';
+import { createClient } from '@/lib/supabase/server';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -14,11 +15,14 @@ export const metadata: Metadata = {
   description: 'Buy and sell high-quality datasets for your business needs.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = createClient();
+  const { data } = await supabase.auth.getUser();
+
   return (
     <html lang="en" suppressHydrationWarning>
        <head>
@@ -28,7 +32,7 @@ export default function RootLayout({
       </head>
       <body className={cn('min-h-screen bg-background font-sans antialiased dark', inter.variable)}>
         <div className="relative flex min-h-screen flex-col">
-          <Header />
+          <Header user={data.user} />
           <main className="flex-1 pb-20 md:pb-0">{children}</main>
           <Footer />
           <BottomNav />

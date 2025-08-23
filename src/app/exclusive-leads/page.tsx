@@ -1,4 +1,4 @@
-import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,9 +15,11 @@ const mockLeadBatches: ExclusiveLeadBatch[] = [
 
 
 export default async function ExclusiveLeadsPage() {
-    const session = await auth();
-    if (!session) {
-        redirect('/login');
+    const supabase = createClient();
+
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data?.user) {
+        redirect("/login");
     }
 
     const userBalance = 750.50; // Mock data
