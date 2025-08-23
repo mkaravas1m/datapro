@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -18,79 +19,39 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, ToggleLeft, ToggleRight, Archive, ArchiveRestore } from "lucide-react";
+import { MoreHorizontal, Archive, ArchiveRestore } from "lucide-react";
 import type { CsvFile } from "@/lib/types";
 import { Card } from "@/components/ui/card";
-
-const mockFiles: CsvFile[] = [
-  {
-    id: "1",
-    name: "USA B2B Company Leads",
-    description: "A comprehensive list of over 50,000 B2B companies in the United States, including contact information, industry, and revenue.",
-    category: "Business",
-    rowCount: 50000,
-    price: 499.99,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "2",
-    name: "Global E-commerce Transactions Q1 2024",
-    description: "Anonymized transaction data from e-commerce platforms worldwide for the first quarter of 2024. Ideal for market analysis.",
-    category: "Finance",
-    rowCount: 1200000,
-    price: 1299.00,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "3",
-    name: "Top 10,000 Mobile Game Player Profiles",
-    description: "Demographic and engagement data for top mobile game players. Includes preferred genres, session length, and IAP history.",
-    category: "Gaming",
-    rowCount: 10000,
-    price: 250.00,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "4",
-    name: "Real Estate Listings - California (Jan 2024)",
-    description: "Detailed property listings from across California for January 2024. Contains prices, locations, square footage, and more.",
-    category: "Real Estate",
-    rowCount: 85000,
-    price: 600.00,
-    status: "sold",
-    sample: [],
-  },
-    {
-    id: "5",
-    name: "Startup Funding Rounds 2023",
-    description: "A dataset of venture capital funding rounds for tech startups throughout 2023. Includes company, investors, and round size.",
-    category: "Technology",
-    rowCount: 15000,
-    price: 350.00,
-    status: "sold",
-    sample: [],
-  },
-  {
-    id: "6",
-    name: "Healthcare Professional Directory",
-    description: "Contact and specialization data for over 100,000 healthcare professionals in North America. Verified and updated monthly.",
-    category: "Healthcare",
-    rowCount: 100000,
-    price: 950.00,
-    status: "archived",
-    sample: [],
-  },
-];
-
+import { getFiles, updateFileStatus } from "@/lib/actions/files";
+import { useToast } from "@/hooks/use-toast";
 
 export default function FilesPage() {
-  const [files, setFiles] = useState<CsvFile[]>(mockFiles);
+  const [files, setFiles] = useState<CsvFile[]>([]);
+  const { toast } = useToast();
 
-  const setFileStatus = (fileId: string, status: CsvFile['status']) => {
-    setFiles(files.map(file => file.id === fileId ? { ...file, status } : file));
+  useEffect(() => {
+    const fetchFiles = async () => {
+      const allFiles = await getFiles();
+      setFiles(allFiles);
+    };
+    fetchFiles();
+  }, []);
+
+  const handleSetFileStatus = async (fileId: string, status: CsvFile['status']) => {
+    const result = await updateFileStatus(fileId, status);
+    if (result.error) {
+      toast({
+        variant: "destructive",
+        title: "Error updating file",
+        description: result.error,
+      });
+    } else {
+      setFiles(files.map(file => file.id === fileId ? { ...file, status } : file));
+      toast({
+        title: "File status updated",
+        description: `File has been set to ${status}.`,
+      });
+    }
   };
 
   const getStatusBadgeVariant = (status: CsvFile['status']) => {
@@ -127,7 +88,7 @@ export default function FilesPage() {
                 <TableCell className="font-medium">{file.name}</TableCell>
                 <TableCell className="hidden lg:table-cell">{file.category}</TableCell>
                 <TableCell className="hidden sm:table-cell">${file.price.toFixed(2)}</TableCell>
-                <TableCell className="hidden sm:table-cell">{file.rowCount.toLocaleString()}</TableCell>
+                <TableCell className="hidden sm:table-cell">{file.rowCount?.toLocaleString()}</TableCell>
                 <TableCell>
                   <Badge variant={getStatusBadgeVariant(file.status)} className="capitalize">
                     {file.status}
@@ -143,19 +104,14 @@ export default function FilesPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                       {file.status === 'sold' && (
-                        <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'available')}>
-                          <ToggleRight className="mr-2 h-4 w-4" /> Re-list
+                       {(file.status === 'sold' || file.status === 'archived') && (
+                        <DropdownMenuItem onSelect={() => handleSetFileStatus(file.id, 'available')}>
+                          <ArchiveRestore className="mr-2 h-4 w-4" /> Relist / Unarchive
                         </DropdownMenuItem>
                       )}
                       {file.status === 'available' && (
-                        <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'archived')}>
+                        <DropdownMenuItem onSelect={() => handleSetFileStatus(file.id, 'archived')}>
                           <Archive className="mr-2 h-4 w-4" /> Archive
-                        </DropdownMenuItem>
-                      )}
-                      {file.status === 'archived' && (
-                         <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'available')}>
-                          <ArchiveRestore className="mr-2 h-4 w-4" /> Unarchive
                         </DropdownMenuItem>
                       )}
                     </DropdownMenuContent>
@@ -183,19 +139,14 @@ export default function FilesPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      {file.status === 'sold' && (
-                        <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'available')}>
-                          <ToggleRight className="mr-2 h-4 w-4" /> Re-list
+                      {(file.status === 'sold' || file.status === 'archived') && (
+                        <DropdownMenuItem onSelect={() => handleSetFileStatus(file.id, 'available')}>
+                          <ArchiveRestore className="mr-2 h-4 w-4" /> Relist / Unarchive
                         </DropdownMenuItem>
                       )}
                       {file.status === 'available' && (
-                        <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'archived')}>
+                        <DropdownMenuItem onSelect={() => handleSetFileStatus(file.id, 'archived')}>
                           <Archive className="mr-2 h-4 w-4" /> Archive
-                        </DropdownMenuItem>
-                      )}
-                      {file.status === 'archived' && (
-                         <DropdownMenuItem onSelect={() => setFileStatus(file.id, 'available')}>
-                          <ArchiveRestore className="mr-2 h-4 w-4" /> Unarchive
                         </DropdownMenuItem>
                       )}
                     </DropdownMenuContent>
@@ -207,7 +158,7 @@ export default function FilesPage() {
                   </Badge>
                  <div className="text-right">
                     <p className="font-semibold">${file.price.toFixed(2)}</p>
-                    <p className="text-muted-foreground">{file.rowCount.toLocaleString()} rows</p>
+                    <p className="text-muted-foreground">{file.rowCount?.toLocaleString()} rows</p>
                  </div>
                </div>
           </Card>

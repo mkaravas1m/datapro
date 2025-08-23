@@ -1,106 +1,55 @@
-"use client"
 
-import { useState } from 'react';
-import { CsvFile } from '@/lib/types';
 import { FileCard } from '@/components/store/file-card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search } from 'lucide-react';
+import { createClient } from '@/lib/supabase/server';
+import type { CsvFile } from '@/lib/types';
+import { Button } from '@/components/ui/button';
 
-const mockFiles: CsvFile[] = [
-  {
-    id: "1",
-    name: "USA B2B Company Leads",
-    description: "A comprehensive list of over 50,000 B2B companies in the United States, including contact information, industry, and revenue.",
-    category: "Business",
-    rowCount: 50000,
-    price: 499.99,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "2",
-    name: "Global E-commerce Transactions Q1 2024",
-    description: "Anonymized transaction data from e-commerce platforms worldwide for the first quarter of 2024. Ideal for market analysis.",
-    category: "Finance",
-    rowCount: 1200000,
-    price: 1299.00,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "3",
-    name: "Top 10,000 Mobile Game Player Profiles",
-    description: "Demographic and engagement data for top mobile game players. Includes preferred genres, session length, and IAP history.",
-    category: "Gaming",
-    rowCount: 10000,
-    price: 250.00,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "4",
-    name: "Real Estate Listings - California (Jan 2024)",
-    description: "Detailed property listings from across California for January 2024. Contains prices, locations, square footage, and more.",
-    category: "Real Estate",
-    rowCount: 85000,
-    price: 600.00,
-    status: "available",
-    sample: [],
-  },
-    {
-    id: "5",
-    name: "Startup Funding Rounds 2023",
-    description: "A dataset of venture capital funding rounds for tech startups throughout 2023. Includes company, investors, and round size.",
-    category: "Technology",
-    rowCount: 15000,
-    price: 350.00,
-    status: "sold",
-    sample: [],
-  },
-  {
-    id: "6",
-    name: "Healthcare Professional Directory",
-    description: "Contact and specialization data for over 100,000 healthcare professionals in North America. Verified and updated monthly.",
-    category: "Healthcare",
-    rowCount: 100000,
-    price: 950.00,
-    status: "archived",
-    sample: [],
-  },
-];
+export const revalidate = 0; // Revalidate data on every request
 
-export default function StorePage() {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [category, setCategory] = useState('all');
-    const [sortBy, setSortBy] = useState('newest');
+interface StorePageProps {
+  searchParams: {
+    search?: string;
+    category?: string;
+    sort?: string;
+  };
+}
 
-    const availableFiles = mockFiles.filter(file => file.status === 'available');
-
-    const filteredFiles = availableFiles
-        .filter(file =>
-            file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            file.description.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .filter(file => category === 'all' || file.category === category);
+export default async function StorePage({ searchParams }: StorePageProps) {
+    const supabase = createClient();
     
-    const sortedFiles = filteredFiles.sort((a, b) => {
-        switch (sortBy) {
-            case 'price-asc':
-                return a.price - b.price;
-            case 'price-desc':
-                return b.price - a.price;
-            case 'name-asc':
-                return a.name.localeCompare(b.name);
-            case 'name-desc':
-                return b.name.localeCompare(a.name);
-            case 'newest':
-            default:
-                return 0; 
-        }
-    });
+    const searchTerm = searchParams.search || '';
+    const category = searchParams.category || 'all';
+    const sortBy = searchParams.sort || 'created_at-desc';
 
-    const uniqueCategories = ['all', ...Array.from(new Set(availableFiles.map(f => f.category)))];
+    let query = supabase
+        .from('csv_files')
+        .select('*')
+        .eq('status', 'available');
+
+    if (searchTerm) {
+        query = query.textSearch('name', searchTerm, { type: 'websearch' });
+    }
+
+    if (category && category !== 'all') {
+        query = query.eq('category', category);
+    }
+    
+    const [sortField, sortOrder] = sortBy.split('-');
+    if (sortField && sortOrder) {
+        query = query.order(sortField as keyof CsvFile, { ascending: sortOrder === 'asc' });
+    }
+
+    const { data: files, error } = await query;
+
+    if (error) {
+        console.error("Error fetching files:", error);
+    }
+    
+    const { data: categoriesData } = await supabase.from('csv_files').select('category').eq('status', 'available');
+    const uniqueCategories = ['all', ...Array.from(new Set(categoriesData?.map(c => c.category) || []))];
 
     return (
         <div className="container py-8">
@@ -112,18 +61,18 @@ export default function StorePage() {
             </div>
             
             <div className="mb-8 p-4 bg-secondary/30 rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <form method="GET" action="/store" className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="relative md:col-span-1">
                         <Input 
+                            name="search"
                             placeholder="Search datasets..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            defaultValue={searchTerm}
                             className="pl-10"
                         />
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     </div>
                     <div className="md:col-span-1">
-                        <Select value={category} onValueChange={setCategory}>
+                        <Select name="category" defaultValue={category}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Filter by category" />
                             </SelectTrigger>
@@ -135,12 +84,12 @@ export default function StorePage() {
                         </Select>
                     </div>
                      <div className="md:col-span-1">
-                        <Select value={sortBy} onValueChange={setSortBy}>
+                        <Select name="sort" defaultValue={sortBy}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Sort by" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="newest">Newest</SelectItem>
+                                <SelectItem value="created_at-desc">Newest</SelectItem>
                                 <SelectItem value="price-asc">Price: Low to High</SelectItem>
                                 <SelectItem value="price-desc">Price: High to Low</SelectItem>
                                 <SelectItem value="name-asc">Name: A to Z</SelectItem>
@@ -148,16 +97,19 @@ export default function StorePage() {
                             </SelectContent>
                         </Select>
                     </div>
-                </div>
+                    <div className="md:col-span-3 flex justify-end">
+                        <Button type="submit">Filter</Button>
+                    </div>
+                </form>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {sortedFiles.map(file => (
+                {files && files.map(file => (
                     <FileCard key={file.id} file={file} />
                 ))}
             </div>
 
-            {sortedFiles.length === 0 && (
+            {(!files || files.length === 0) && (
                 <div className="text-center col-span-full py-16">
                     <p className="text-xl font-semibold">No datasets found</p>
                     <p className="text-muted-foreground mt-2">Try adjusting your search or filters.</p>

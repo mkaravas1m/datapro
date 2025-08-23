@@ -1,56 +1,14 @@
+
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Search, TrendingUp, ShieldCheck, Database, Star } from "lucide-react";
+import { ArrowRight, Search, ShieldCheck, Database, Star } from "lucide-react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { FileCard } from "@/components/store/file-card";
 import type { CsvFile } from "@/lib/types";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-const mockFiles: CsvFile[] = [
-  {
-    id: "1",
-    name: "USA B2B Company Leads",
-    description: "A comprehensive list of over 50,000 B2B companies in the United States, including contact information, industry, and revenue.",
-    category: "Business",
-    rowCount: 50000,
-    price: 499.99,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "2",
-    name: "Global E-commerce Transactions Q1 2024",
-    description: "Anonymized transaction data from e-commerce platforms worldwide for the first quarter of 2024. Ideal for market analysis.",
-    category: "Finance",
-    rowCount: 1200000,
-    price: 1299.00,
-    status: "available",
-    sample: [],
-  },
-  {
-    id: "3",
-    name: "Top 10,000 Mobile Game Player Profiles",
-    description: "Demographic and engagement data for top mobile game players. Includes preferred genres, session length, and IAP history.",
-    category: "Gaming",
-    rowCount: 10000,
-    price: 250.00,
-    status: "available",
-    sample: [],
-  },
-    {
-    id: "4",
-    name: "Real Estate Listings - California (Jan 2024)",
-    description: "Detailed property listings from across California for January 2024. Contains prices, locations, square footage, and more.",
-    category: "Real Estate",
-    rowCount: 85000,
-    price: 600.00,
-    status: "available",
-    sample: [],
-  },
-];
-
+import { createClient } from "@/lib/supabase/server";
 
 const FeatureCard = ({ icon, title, description }: { icon: React.ElementType, title: string, description: string }) => {
   const Icon = icon;
@@ -113,8 +71,15 @@ const faqItems = [
     }
 ];
 
-export default function Home() {
-  const availableFiles = mockFiles.filter(file => file.status === 'available');
+export default async function Home() {
+  const supabase = createClient();
+  const { data: filesData, error } = await supabase
+    .from('csv_files')
+    .select('*')
+    .eq('status', 'available')
+    .limit(4);
+
+  const availableFiles: CsvFile[] = filesData || [];
 
   return (
     <div className="w-full">
@@ -131,13 +96,13 @@ export default function Home() {
             Empower your business with high-quality, verified datasets. Find the data you need to drive growth, innovation, and strategic decisions.
           </p>
           <div className="flex flex-col items-center justify-center gap-4 mt-8">
-            <div className="relative w-full max-w-lg">
-                <Input placeholder="Search for datasets..." className="h-12 pl-12 pr-28 rounded-full" />
+            <form action="/store" method="GET" className="relative w-full max-w-lg">
+                <Input name="search" placeholder="Search for datasets..." className="h-12 pl-12 pr-28 rounded-full" />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Button size="lg" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-10 px-6">
+                <Button type="submit" size="lg" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-10 px-6">
                     Search
                 </Button>
-            </div>
+            </form>
              <p className="text-sm text-muted-foreground mt-2">
                 <Link href="/store" className="underline hover:text-primary">
                 Browse all datasets
@@ -176,9 +141,8 @@ export default function Home() {
               We provide the tools and trust you need to succeed with data.
             </p>
           </div>
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-2">
             <FeatureCard icon={ShieldCheck} title="Verified Quality" description="Every dataset is meticulously verified for accuracy and completeness, so you can trust the data you purchase." />
-            <FeatureCard icon={TrendingUp} title="Drive Growth" description="Leverage our diverse datasets to uncover market trends, generate leads, and make smarter business decisions." />
             <FeatureCard icon={Database} title="Instant Access" description="Get immediate access to your purchased datasets. No waiting, no hassle. Download and start working right away." />
           </div>
         </div>
