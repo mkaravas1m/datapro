@@ -21,6 +21,7 @@ export function Footer() {
               <li><Link href="/store" className="hover:text-primary">Store</Link></li>
               <li><Link href="/#featured" className="hover:text-primary">Featured</Link></li>
               <li><Link href="/#features" className="hover:text-primary">Why Us</Link></li>
+              <li><Link href="/#faq" className="hover:text-primary">FAQ</Link></li>
             </ul>
           </div>
           <div className="space-y-2">
@@ -34,8 +35,8 @@ export function Footer() {
           <div className="space-y-2">
             <h4 className="font-semibold">Legal</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="#" className="hover:text-primary">Terms of Service</Link></li>
-              <li><Link href="#" className="hover:text-primary">Privacy Policy</Link></li>
+              <li><Link href="/terms-of-service" className="hover:text-primary">Terms of Service</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>

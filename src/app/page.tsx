@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Search, TrendingUp, ShieldCheck, Database } from "lucide-react";
+import { ArrowRight, Search, TrendingUp, ShieldCheck, Database, Star } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { FileCard } from "@/components/store/file-card";
 import type { CsvFile } from "@/lib/types";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const mockFiles: CsvFile[] = [
   {
@@ -66,6 +68,50 @@ const FeatureCard = ({ icon, title, description }: { icon: React.ElementType, ti
     </Card>
   );
 };
+
+const TestimonialCard = ({ name, role, company, avatar, testimonial }: { name: string, role: string, company: string, avatar: string, testimonial: string }) => (
+  <Card className="bg-secondary/50 border-white/10">
+    <CardContent className="pt-6">
+      <div className="flex mb-4">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+        ))}
+      </div>
+      <blockquote className="text-muted-foreground italic">"{testimonial}"</blockquote>
+    </CardContent>
+    <CardHeader>
+      <div className="flex items-center gap-4">
+        <Avatar>
+          <AvatarImage src={avatar} alt={name} data-ai-hint="person" />
+          <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+        </Avatar>
+        <div>
+          <CardTitle className="text-base">{name}</CardTitle>
+          <CardDescription>{role}, {company}</CardDescription>
+        </div>
+      </div>
+    </CardHeader>
+  </Card>
+);
+
+const faqItems = [
+    {
+        question: "What kind of datasets can I find on DataSalesPro?",
+        answer: "You can find a wide variety of datasets across numerous categories, including business, finance, gaming, real estate, healthcare, and technology. Our marketplace is constantly growing as new sellers join."
+    },
+    {
+        question: "How are the datasets verified?",
+        answer: "Every dataset submitted to our platform goes through a rigorous verification process. We check for data accuracy, completeness, formatting, and ensure it meets our quality standards before it's made available for purchase."
+    },
+    {
+        question: "In what format are the datasets provided?",
+        answer: "Most datasets are provided in CSV format for maximum compatibility with various data analysis tools and platforms. Specific format details are available on each dataset's product page."
+    },
+    {
+        question: "What happens after I purchase a dataset?",
+        answer: "Once your purchase is complete, you will get instant access to download the dataset. You can find all your purchased datasets in your account dashboard."
+    }
+];
 
 export default function Home() {
   return (
@@ -135,6 +181,61 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <section id="testimonials" className="py-12 md:py-24">
+        <div className="container">
+           <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Trusted by Data Professionals</h2>
+            <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">
+              Hear what our satisfied customers have to say about our datasets.
+            </p>
+          </div>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <TestimonialCard
+                name="Sarah Johnson"
+                role="Data Scientist"
+                company="Innovate Inc."
+                avatar="https://placehold.co/100x100.png"
+                testimonial="DataSalesPro has been a game-changer for our projects. The quality and variety of datasets available are unmatched. It's our go-to source for reliable data."
+            />
+            <TestimonialCard
+                name="Michael Chen"
+                role="Marketing Analyst"
+                company="Growth Co."
+                avatar="https://placehold.co/100x100.png"
+                testimonial="We've been able to identify key market trends and opportunities thanks to the datasets from DataSalesPro. The platform is easy to use and the data is always top-notch."
+            />
+             <TestimonialCard
+                name="Jessica Rodriguez"
+                role="Founder"
+                company="Startup Solutions"
+                avatar="https://placehold.co/100x100.png"
+                testimonial="As a startup, having access to affordable, high-quality data is crucial. DataSalesPro has provided us with the resources we need to compete and grow."
+            />
+          </div>
+        </div>
+      </section>
+      
+       <section id="faq" className="py-12 md:py-24 bg-secondary/30">
+          <div className="container max-w-4xl">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Frequently Asked Questions</h2>
+                <p className="max-w-2xl mx-auto mt-3 text-muted-foreground">
+                    Have questions? We've got answers.
+                </p>
+              </div>
+              <Accordion type="single" collapsible className="w-full">
+                  {faqItems.map((item, index) => (
+                      <AccordionItem value={`item-${index + 1}`} key={index}>
+                          <AccordionTrigger className="text-lg text-left">{item.question}</AccordionTrigger>
+                          <AccordionContent className="text-base">
+                              {item.answer}
+                          </AccordionContent>
+                      </AccordionItem>
+                  ))}
+              </Accordion>
+          </div>
+       </section>
 
        <section className="py-12 md:py-24">
         <div className="container text-center">
