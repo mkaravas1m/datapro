@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { addFunds } from '@/lib/actions/funds';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -34,12 +34,12 @@ export async function POST(req: Request) {
     const amount = parseFloat(amountStr);
 
     // Prevent duplicate transactions by checking for the stripe session id
-     const supabase = createClient();
+     const supabase = createAdminClient();
      const { data: existingTransaction } = await supabase
          .from('transactions')
          .select('id')
          .eq('description', `Stripe payment: ${session.id}`)
-         .single();
+         .maybeSingle();
     
     if(existingTransaction) {
         console.log('✅ Webhook: Payment already processed.');

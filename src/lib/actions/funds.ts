@@ -24,20 +24,19 @@ export async function addFunds(amount: number, userId: string, description: stri
         return { error: "Could not retrieve user profile." };
     }
 
-    // If profile exists, update it. Otherwise, create it.
     const currentBalance = profile?.balance ?? 0;
     const newBalance = currentBalance + amount;
     
     const { error: upsertError } = await supabase
         .from('profiles')
-        .upsert({ id: userId, balance: newBalance, full_name: '' }, { onConflict: 'id' });
+        .upsert({ id: userId, balance: newBalance }, { onConflict: 'id' });
 
     if (upsertError) {
         console.error('Error upserting balance:', upsertError);
         return { error: "Failed to update balance." };
     }
     
-    // Create a transaction record
+    // Create a transaction record using the admin client
     const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
