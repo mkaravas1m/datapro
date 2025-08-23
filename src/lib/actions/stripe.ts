@@ -87,6 +87,7 @@ export async function verifyPaymentAndUpdateBalance(sessionId: string) {
             }
 
             if (existingTransaction) {
+                revalidatePath('/dashboard');
                 return { success: true, message: "Payment already processed." };
             }
 
