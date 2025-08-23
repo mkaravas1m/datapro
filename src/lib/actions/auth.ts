@@ -33,7 +33,7 @@ export async function signup(prevState: any, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -50,6 +50,18 @@ export async function signup(prevState: any, formData: FormData) {
     console.error('Signup Error:', error);
     return {
         message: "An error occurred during signup. Please try again."
+    }
+  }
+
+  if (data.user) {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({ id: data.user.id, full_name: name, email: email, balance: 100 });
+    
+    if (profileError) {
+      console.error('Profile Creation Error:', profileError);
+      // Even if profile creation fails, we might still proceed or handle it differently.
+      // For now, we'll log it and let the user log in. The core user exists.
     }
   }
 
