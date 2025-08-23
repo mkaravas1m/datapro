@@ -18,12 +18,14 @@ import { Label } from "@/components/ui/label";
 import { PlusCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { addFunds } from "@/lib/actions/funds";
+import { useAuth } from "@/hooks/use-auth";
 
 export function AddFundsDialog() {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [isPending, setIsPending] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleAddFunds = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +58,10 @@ export function AddFundsDialog() {
       setAmount("");
     }
   };
+  
+  if (!user) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
