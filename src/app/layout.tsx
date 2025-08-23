@@ -9,8 +9,8 @@ import { Footer } from '@/components/common/footer';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: 'AI Story Generator',
-  description: 'Create captivating stories in seconds with AI.',
+  title: 'DataSalesPro - The Premier Marketplace for Datasets',
+  description: 'Buy and sell high-quality datasets for your business needs.',
 };
 
 export default function RootLayout({

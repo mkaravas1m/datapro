@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PenSquare, LogIn, UserPlus, Menu } from "lucide-react";
+import { Package2, LogIn, UserPlus, Menu, ShoppingCart, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils";
@@ -15,9 +15,10 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const navLinks = [
-    { href: "/#features", label: "Features" },
+    { href: "/store", label: "Store" },
+    { href: "/#featured", label: "Featured" },
+    { href: "/#features", label: "Why Us" },
     { href: "/#pricing", label: "Pricing" },
-    { href: "/#faq", label: "FAQ" },
   ];
 
   return (
@@ -25,8 +26,8 @@ export function Header() {
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex md:items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <PenSquare className="h-6 w-6 text-primary" />
-            <span className="font-bold sm:inline-block">AI Story Generator</span>
+            <Package2 className="h-6 w-6 text-primary" />
+            <span className="font-bold sm:inline-block">DataSalesPro</span>
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
             {navLinks.map((link) => (
@@ -46,8 +47,8 @@ export function Header() {
         {/* Mobile Menu */}
         <div className="flex w-full items-center justify-between md:hidden">
             <Link href="/" className="flex items-center space-x-2">
-                <PenSquare className="h-6 w-6 text-primary" />
-                <span className="font-bold sm:inline-block">AI Story Generator</span>
+                <Package2 className="h-6 w-6 text-primary" />
+                <span className="font-bold sm:inline-block">DataSalesPro</span>
             </Link>
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
@@ -63,8 +64,8 @@ export function Header() {
                     className="mr-6 flex items-center space-x-2 mb-8"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <PenSquare className="h-6 w-6 text-primary" />
-                    <span className="font-bold">AI Story Generator</span>
+                    <Package2 className="h-6 w-6 text-primary" />
+                    <span className="font-bold">DataSalesPro</span>
                   </Link>
                 <div className="flex flex-col h-full">
                     <div className="flex flex-col pr-6">
@@ -91,7 +92,7 @@ export function Header() {
                                 <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-lg text-foreground/60 hover:text-foreground/80"><UserPlus className="h-5 w-5" /> Sign Up</Link>
                             </>
                          ) : (
-                             <Link href={'/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-lg text-foreground/60 hover:text-foreground/80"><PenSquare className="h-5 w-5" /> Dashboard</Link>
+                             <Link href={'/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-lg text-foreground/60 hover:text-foreground/80"><LayoutDashboard className="h-5 w-5" /> Dashboard</Link>
                          )}
                     </div>
                 </div>
@@ -104,21 +105,29 @@ export function Header() {
             <>
               <Button asChild variant="ghost">
                 <Link href="/login">
-                  Login
+                  <LogIn className="mr-2 h-4 w-4" /> Login
                 </Link>
               </Button>
               <Button asChild>
                 <Link href="/signup">
-                  Sign Up
+                  Sign Up <UserPlus className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </>
           ) : (
-            <Button asChild>
-              <Link href="/dashboard">
-                <PenSquare className="mr-2 h-4 w-4" /> Dashboard
-              </Link>
-            </Button>
+             <>
+              <Button asChild variant="ghost" size="icon">
+                <Link href="/cart">
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="sr-only">Cart</span>
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/dashboard">
+                  <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                </Link>
+              </Button>
+            </>
           )}
         </div>
       </div>
