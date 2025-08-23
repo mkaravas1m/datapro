@@ -3,7 +3,6 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
 import { createClient } from "@/lib/supabase/server";
 
 export async function login(prevState: any, formData: FormData) {
@@ -46,8 +45,12 @@ export async function signup(prevState: any, formData: FormData) {
   });
 
   if (error) {
+    if (error.message.includes('User already registered')) {
+        return { message: "This email address is already in use. Please log in." };
+    }
+    console.error('Signup Error:', error);
     return {
-        message: error.message || "Something went wrong."
+        message: "Database error saving new user. Please try again."
     }
   }
 
