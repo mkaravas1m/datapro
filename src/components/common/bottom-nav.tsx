@@ -21,7 +21,7 @@ export function BottomNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t border-border">
+    <div className="lg:hidden fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t border-border">
       <div className={`grid h-full max-w-lg grid-cols-${navItems.length} mx-auto font-medium`}>
         {navItems.map((item) => {
           if (!item) return null;

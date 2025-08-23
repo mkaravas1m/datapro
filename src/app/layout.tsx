@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Inter } from 'next/font/google';
@@ -35,7 +36,7 @@ export default async function RootLayout({
         <AuthProvider user={data.user}>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <main className="flex-1 pb-20 md:pb-0">{children}</main>
+            <main className="flex-1 pb-20 lg:pb-0">{children}</main>
             <Footer />
             <BottomNav />
           </div>
