@@ -3,7 +3,11 @@ import type { Tables } from "./database.types";
 
 export type CsvFile = Tables<'csv_files'>;
 
-export type Order = Tables<'orders'>;
+export type Order = Tables<'orders'> & {
+  file: {
+    name: string | null;
+  } | null;
+};
 
 export type Profile = Tables<'profiles'>;
 

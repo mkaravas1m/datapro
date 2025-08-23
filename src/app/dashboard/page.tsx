@@ -1,24 +1,45 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { Order, Transaction } from "@/lib/types";
+import type { Order, Transaction, Profile } from "@/lib/types";
 import { Download, ArrowUpRight, DollarSign, PlusCircle } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-const mockOrders: Order[] = [
-  { id: "ORD001", file_id: 1, file: { name: "USA B2B Company Leads" }, created_at: "2023-06-23", amount: 499.99, status: 'paid', user_id: '1' },
-  { id: "ORD002", file_id: 3, file: { name: "Top 10,000 Mobile Game Player Profiles" }, created_at: "2023-05-15", amount: 250.00, status: 'paid', user_id: '1' },
-];
+export default async function DashboardPage() {
+  const supabase = createClient();
 
-const mockTransactions: Transaction[] = [
-    { id: 1, created_at: '2023-07-01', type: 'deposit', amount: 500, description: 'Stripe Deposit', user_id: '1' },
-    { id: 2, created_at: '2023-07-05', type: 'debit', amount: -50, description: 'Purchase: 500 Exclusive Leads', user_id: '1' },
-    { id: 3, created_at: '2023-07-10', type: 'deposit', amount: 200, description: 'Admin Credit', user_id: '1' },
-];
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/login");
+  }
 
-export default function DashboardPage() {
-  const userBalance = 750.50; // Mock data
+  const { data: orders } = await supabase
+    .from('orders')
+    .select(`
+      *,
+      file:csv_files ( name )
+    `)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  const { data: transactions } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+    
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  const userBalance = profile?.balance ?? 0;
+  const userProfile: Profile | null = profile;
 
   return (
     <div className="container py-8">
@@ -43,11 +64,11 @@ export default function DashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockOrders.map(order => (
+                  {(orders as Order[] || []).map(order => (
                     <TableRow key={order.id}>
                       <TableCell>{order.id}</TableCell>
                       <TableCell className="font-medium">{order.file?.name}</TableCell>
-                      <TableCell>{order.created_at}</TableCell>
+                      <TableCell>{new Date(order.created_at || '').toLocaleDateString()}</TableCell>
                       <TableCell>${order.amount.toFixed(2)}</TableCell>
                       <TableCell><Badge variant={order.status === 'paid' ? 'default' : 'destructive'}>{order.status}</Badge></TableCell>
                       <TableCell>
@@ -91,9 +112,9 @@ export default function DashboardPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {mockTransactions.map((t) => (
+                        {(transactions || []).map((t) => (
                              <TableRow key={t.id}>
-                                <TableCell>{t.created_at}</TableCell>
+                                <TableCell>{new Date(t.created_at || '').toLocaleDateString()}</TableCell>
                                 <TableCell className="font-medium">{t.description}</TableCell>
                                 <TableCell>
                                     <Badge variant="outline" className={t.type === 'deposit' ? 'text-green-600 border-green-600' : 'text-red-600 border-red-600'}>
@@ -119,11 +140,11 @@ export default function DashboardPage() {
             <CardContent className="space-y-4">
               <div>
                 <p className="text-sm font-medium">Name</p>
-                <p className="text-muted-foreground">John Doe</p>
+                <p className="text-muted-foreground">{userProfile?.full_name ?? 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Email</p>
-                <p className="text-muted-foreground">john.doe@example.com</p>
+                <p className="text-muted-foreground">{user.email}</p>
               </div>
               <Button variant="outline" className="w-full">Edit Profile</Button>
             </CardContent>
