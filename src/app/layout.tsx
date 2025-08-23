@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/common/header';
 import { Footer } from '@/components/common/footer';
-import { BottomNav } from '@/components/common/bottom-nav';
 import { createClient } from '@/lib/supabase/server';
 import { AuthProvider } from '@/hooks/use-auth';
 
@@ -36,9 +35,8 @@ export default async function RootLayout({
         <AuthProvider user={data.user}>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <main className="flex-1 pb-20 lg:pb-0">{children}</main>
+            <main className="flex-1">{children}</main>
             <Footer />
-            <BottomNav />
           </div>
         </AuthProvider>
         <Toaster />
