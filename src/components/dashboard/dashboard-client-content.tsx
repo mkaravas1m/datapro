@@ -31,21 +31,20 @@ export function DashboardClientContent({ user, profile: initialProfile, orders: 
 
 
   useEffect(() => {
-      const fetchAndSetData = () => {
-        setProfile(initialProfile);
-        setOrders(initialOrders);
-        setTransactions(initialTransactions);
-        setUserBalance(initialBalance);
-      }
-      fetchAndSetData();
+      setProfile(initialProfile);
+      setOrders(initialOrders);
+      setTransactions(initialTransactions);
+      setUserBalance(initialBalance);
 
       const supabase = createClient();
       const channel = supabase.channel('db-changes-dashboard')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` }, 
         async (payload) => {
            const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-           setProfile(profileData);
-           setUserBalance(profileData?.balance ?? 0);
+           if (profileData) {
+             setProfile(profileData);
+             setUserBalance(profileData.balance ?? 0);
+           }
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions', filter: `user_id=eq.${user.id}` }, 
         async (payload) => {
