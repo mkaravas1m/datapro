@@ -4,10 +4,9 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
-import { Header } from '@/components/common/header';
-import { Footer } from '@/components/common/footer';
 import { createClient } from '@/lib/supabase/server';
 import { AuthProvider } from '@/hooks/use-auth';
+import { ClientLayout } from '@/components/common/client-layout';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -33,11 +32,9 @@ export default async function RootLayout({
       </head>
       <body className={cn('min-h-screen bg-background font-sans antialiased dark', inter.variable)}>
         <AuthProvider user={user}>
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+            <ClientLayout>
+                {children}
+            </ClientLayout>
         </AuthProvider>
         <Toaster />
       </body>

@@ -3,15 +3,8 @@
 
 import { Package2 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 export function Footer() {
-  const pathname = usePathname();
-
-  if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard')) {
-    return null;
-  }
-
   return (
     <footer className="border-t border-white/10 bg-background">
       <div className="container py-12">

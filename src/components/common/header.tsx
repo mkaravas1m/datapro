@@ -23,10 +23,6 @@ export function Header() {
     { href: "/exclusive-leads", label: "Exclusive Leads", icon: Zap },
     { href: "/#faq", label: "FAQ" },
   ];
-  
-  if (pathname.startsWith('/admin')) {
-    return null;
-  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
