@@ -40,6 +40,7 @@ export async function signup(prevState: any, formData: FormData) {
     options: {
       data: {
         full_name: name,
+        email: email
       },
     },
   });

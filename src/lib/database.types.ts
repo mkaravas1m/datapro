@@ -118,6 +118,7 @@ export type Database = {
       profiles: {
         Row: {
           balance: number
+          email: string | null
           full_name: string | null
           id: string
           role: string
@@ -125,6 +126,7 @@ export type Database = {
         }
         Insert: {
           balance?: number
+          email?: string | null
           full_name?: string | null
           id: string
           role?: string
@@ -132,6 +134,7 @@ export type Database = {
         }
         Update: {
           balance?: number
+          email?: string | null
           full_name?: string | null
           id?: string
           role?: string
