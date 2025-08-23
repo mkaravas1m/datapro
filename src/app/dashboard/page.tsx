@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Order, Transaction, Profile } from "@/lib/types";
-import { Download, ArrowUpRight, DollarSign, PlusCircle } from "lucide-react";
+import { Download, ArrowUpRight, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { AddFundsDialog } from "@/components/dashboard/add-funds-dialog";
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -27,11 +28,12 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false });
   const orders: Order[] = ordersData || [];
 
-  const { data: transactions } = await supabase
+  const { data: transactionsData } = await supabase
     .from('transactions')
     .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
+  const transactions: Transaction[] = transactionsData || [];
     
   const { data: profile } = await supabase
     .from('profiles')
@@ -58,10 +60,8 @@ export default async function DashboardPage() {
                       Use this balance for exclusive lead campaigns.
                   </p>
               </CardContent>
-              <CardFooter className="flex-col items-start gap-2">
-                  <Button className="w-full" asChild>
-                    <Link href="/exclusive-leads"><PlusCircle className="mr-2 h-4 w-4"/> Add Funds</Link>
-                  </Button>
+              <CardFooter>
+                  <AddFundsDialog />
               </CardFooter>
             </Card>
             <Card className="lg:col-span-2">
@@ -177,7 +177,7 @@ export default async function DashboardPage() {
                           </TableRow>
                       </TableHeader>
                       <TableBody>
-                          {(transactions || []).map((t) => (
+                          {transactions.map((t) => (
                               <TableRow key={t.id}>
                                   <TableCell className="hidden sm:table-cell">{new Date(t.created_at || '').toLocaleDateString()}</TableCell>
                                   <TableCell className="font-medium">{t.description}</TableCell>

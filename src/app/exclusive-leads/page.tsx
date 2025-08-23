@@ -1,10 +1,11 @@
+
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Zap, PlusCircle, ArrowRight } from "lucide-react";
-import type { ExclusiveLeadBatch, Profile } from "@/lib/types";
+import { DollarSign, ArrowRight } from "lucide-react";
+import type { ExclusiveLeadBatch } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
+import { AddFundsDialog } from "@/components/dashboard/add-funds-dialog";
 
 export default async function ExclusiveLeadsPage() {
     const supabase = createClient();
@@ -15,7 +16,7 @@ export default async function ExclusiveLeadsPage() {
     if (user) {
         const { data: profile } = await supabase
             .from('profiles')
-            .select('*')
+            .select('balance')
             .eq('id', user.id)
             .single();
         userBalance = profile?.balance ?? 0;
@@ -50,9 +51,7 @@ export default async function ExclusiveLeadsPage() {
                                 <p className="text-sm text-muted-foreground">Available for lead purchases</p>
                             </CardContent>
                             <CardFooter>
-                                <Button className="w-full">
-                                    <PlusCircle className="mr-2" /> Add Funds
-                                </Button>
+                                <AddFundsDialog />
                             </CardFooter>
                         </Card>
                     )}
