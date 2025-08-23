@@ -8,7 +8,6 @@ import { FileCard } from "@/components/store/file-card";
 import type { CsvFile } from "@/lib/types";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { createClient } from "@/lib/supabase/server";
 
 const FeatureCard = ({ icon, title, description }: { icon: React.ElementType, title: string, description: string }) => {
   const Icon = icon;
@@ -71,23 +70,16 @@ const faqItems = [
     }
 ];
 
-async function getFeaturedFiles() {
-  const supabase = createClient();
-  const { data: filesData, error } = await supabase
-    .from('csv_files')
-    .select('*')
-    .eq('status', 'available')
-    .limit(4);
+const featuredFiles: CsvFile[] = [
+  { id: 1, name: "US B2B Company Leads", description: "Over 50,000 verified leads for B2B companies in the US.", price: 499.99, rowCount: 50000, category: "Business", status: "available", created_at: new Date().toISOString() },
+  { id: 2, name: "Global Real Estate Listings", description: "Comprehensive data on real estate listings from major global markets.", price: 799.99, rowCount: 120000, category: "Real Estate", status: "available", created_at: new Date().toISOString() },
+  { id: 3, name: "E-commerce Product Data", description: "Extensive product catalog information from various e-commerce sites.", price: 349.99, rowCount: 250000, category: "E-commerce", status: "available", created_at: new Date().toISOString() },
+  { id: 4, name: "Mobile Game Player Statistics", description: "Player engagement and monetization data for popular mobile games.", price: 299.99, rowCount: 80000, category: "Gaming", status: "available", created_at: new Date().toISOString() },
+];
 
-  if (error) {
-    console.error('Error fetching featured files:', error);
-    return [];
-  }
-  return filesData || [];
-}
 
-export default async function Home() {
-  const availableFiles: CsvFile[] = await getFeaturedFiles();
+export default function Home() {
+  const availableFiles: CsvFile[] = featuredFiles;
 
   return (
     <div className="w-full">
