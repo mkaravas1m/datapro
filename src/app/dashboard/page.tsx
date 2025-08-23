@@ -172,7 +172,6 @@ export default async function DashboardPage() {
                 <p className="text-sm font-medium">Email</p>
                 <p className="text-muted-foreground">{user.email}</p>
               </div>
-              <Button variant="outline" className="w-full">Edit Profile</Button>
             </CardContent>
           </Card>
           
