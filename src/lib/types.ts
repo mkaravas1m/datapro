@@ -16,7 +16,7 @@ export type Transaction = Tables<'transactions'>;
 export type ExclusiveLeadBatch = Tables<'exclusive_lead_batches'>;
 
 export type User = {
-  id: string;
+  id?: string;
   name: string;
   email: string;
   role: 'Admin' | 'Staff' | 'Client';

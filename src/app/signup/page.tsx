@@ -33,7 +33,9 @@ export default function SignupPage() {
     setError(null);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
+    
+    // Step 1: Sign up the user
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -43,17 +45,41 @@ export default function SignupPage() {
       },
     });
 
-    if (error) {
-      setError(error.message);
+    if (authError) {
+      setError(authError.message || "An error occurred during signup. Please try again.");
       setPending(false);
-    } else {
-      // Supabase sends a confirmation email. After the user confirms,
-      // they will be able to log in. We can redirect them to a
-      // "check your email" page or to the login page.
-      // For this app, we'll redirect to dashboard, as email confirmation might be disabled.
-      router.push("/dashboard");
-      router.refresh(); // Refresh the page to update auth state
+      return;
     }
+
+    if (!authData.user) {
+        setError("User could not be created. Please try again.");
+        setPending(false);
+        return;
+    }
+
+    // Step 2: Create a profile for the new user
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({
+        id: authData.user.id,
+        full_name: fullName,
+        email: email,
+        updated_at: new Date().toISOString()
+      });
+    
+    if (profileError) {
+        // If profile creation fails, you might want to delete the user
+        // or have a cleanup process, but for now, we'll show an error.
+        setError("User signed up, but profile creation failed. Please contact support.");
+        console.error("Profile creation error: ", profileError);
+        setPending(false);
+        return;
+    }
+
+    // If both succeed, refresh the session and redirect
+    await supabase.auth.signInWithPassword({ email, password });
+    router.push("/dashboard");
+    router.refresh();
   };
 
   return (
