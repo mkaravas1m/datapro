@@ -35,25 +35,43 @@ export async function logout() {
 }
 
 export async function signup(prevState: any, formData: FormData) {
-    const supabase = createClient();
+    const supabase = createAdminClient();
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const fullName = formData.get('fullName') as string;
     
-    const { error } = await supabase.auth.signUp({
+    // Step 1: Sign up the user
+    const { data: { user }, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          full_name: fullName,
-        },
-      },
     });
 
-    if (error) {
-      console.error("Auth Error:", error);
+    if (signUpError) {
+      console.error("Sign Up Error:", signUpError);
       return {
-        message: "Could not authenticate user. " + error.message,
+        message: "Could not authenticate user: " + signUpError.message,
+      }
+    }
+
+    if (!user) {
+       return {
+        message: "Could not authenticate user. User object not returned.",
+      }
+    }
+
+    // Step 2: Manually create the user's profile with admin client
+    const { error: profileError } = await supabase.from('profiles').insert({
+        id: user.id,
+        email: email,
+        full_name: fullName,
+    });
+    
+    if (profileError) {
+      console.error("Profile Creation Error:", profileError);
+      // Optional: Delete the user if profile creation fails to avoid orphaned auth users
+      await supabase.auth.admin.deleteUser(user.id);
+      return {
+        message: "Database error saving new user: " + profileError.message,
       }
     }
 
