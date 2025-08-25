@@ -4,7 +4,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function login(prevState: any, formData: FormData) {
   const supabase = createClient();
@@ -26,46 +25,6 @@ export async function login(prevState: any, formData: FormData) {
   revalidatePath("/", "layout");
   redirect("/dashboard");
 }
-
-export async function signup(prevState: any, formData: FormData) {
-  const supabase = createClient();
-
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  
-  // The handle_new_user function in Supabase should automatically create a
-  // profile when a new user signs up. We pass the full_name in the metadata.
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: name,
-      },
-    },
-  });
-
-  if (error) {
-    if (error.message.includes('User already registered')) {
-        return { message: "This email address is already in use. Please log in." };
-    }
-    console.error('Signup Error:', error);
-    return {
-        message: "An error occurred during signup. Please try again."
-    }
-  }
-
-  if (!data.user) {
-    return {
-        message: "An unknown error occurred during signup. Please try again."
-    }
-  }
-  
-  revalidatePath("/", "layout");
-  redirect("/dashboard");
-}
-
 
 export async function logout() {
   const supabase = createClient();
