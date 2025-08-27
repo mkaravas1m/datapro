@@ -11,7 +11,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     const isAdminOrDashboard = pathname.startsWith('/admin') || pathname.startsWith('/dashboard');
 
     return (
-        <div className="relative flex min-h-screen flex-col">
+        <div className="relative flex min-h-screen flex-col bg-background text-foreground">
             {!isAdminOrDashboard && <Header />}
             <main className="flex-1">{children}</main>
             {!isAdminOrDashboard && <Footer />}

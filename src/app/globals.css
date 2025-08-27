@@ -96,3 +96,7 @@
     --tw-prose-th-borders: hsl(var(--border));
     --tw-prose-td-borders: hsl(var(--border));
 }
+
+.glow-effect {
+  background: radial-gradient(circle, rgba(0, 128, 128, 0.1) 0%, transparent 70%);
+}

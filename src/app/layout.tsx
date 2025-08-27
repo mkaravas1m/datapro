@@ -20,8 +20,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const supabase = createClient();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    user = authUser;
+  } catch (error) {
+    console.error('Supabase auth error:', error);
+    // Continue without user authentication
+  }
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -30,7 +37,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
       </head>
-      <body className={cn('min-h-screen bg-background font-sans antialiased dark', inter.variable)}>
+      <body className={cn('min-h-screen bg-background font-sans antialiased', inter.variable)}>
         <AuthProvider user={user}>
             <ClientLayout>
                 {children}
